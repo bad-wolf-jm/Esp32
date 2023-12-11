@@ -12,9 +12,9 @@ enum DataFlowDirection
 enum DataFlowOrigin
 {
     TOP_LEFT,
-    TOP_RIGHT,
-    BOTTOM_LEFT,
-    BOTTOM_RIGHT
+    TOP_RIGHT
+    // BOTTOM_LEFT,
+    // BOTTOM_RIGHT
 };
 
 class framebuffer2D_t

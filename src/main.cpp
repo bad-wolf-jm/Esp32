@@ -154,20 +154,6 @@ void Update(uint8_t *front, uint8_t *back)
             alive += (back[n22] > 0) ? 1 : 0;
 
 
-            // for (int c = -1; c < 2; c++)
-            // {
-            //     for (int d = -1; d < 2; d++)
-            //     {
-            //         if (!(c == 0 && d == 0))
-            //         {
-            //             if (gridTwo[a + c][b + d])
-            //             {
-            //                 ++alive;
-            //             }
-            //         }
-            //     }
-            // }
-
             if ((alive < 2) || (alive > 3))
             {
                 front[a * (GRID_SIZE + 2) + b] = 0;
@@ -176,10 +162,6 @@ void Update(uint8_t *front, uint8_t *back)
             {
                 front[a * (GRID_SIZE + 2) + b] = 1;
             }
-            // else //(alive == 3 || alive==2)
-            // {
-            //     front[a * (GRID_SIZE + 2) + b] = back[a * (GRID_SIZE + 2) + b];
-            // }
         }
     }
 }

@@ -36,40 +36,40 @@ void framebuffer2D_t::Present()
                 // TODO
             }
             break;
-        case DataFlowOrigin::BOTTOM_LEFT:
-            i = (_height - 1 - i);
-            if (_direction == DataFlowDirection::HORIZONTAL)
-            {
-                if (i % 2 == 0)
-                    index = i * _width + j;
-                else
-                    index = i * _width + (_width - j - 1);
-            }
-            else
-            {
-                // TODO
-            }
-            break;
-        case DataFlowOrigin::BOTTOM_RIGHT:
-            if (_direction == DataFlowDirection::HORIZONTAL)
-            {
-                // TODO
-            }
-            else
-            {
-                j = (_width - 1 - j);
+        // case DataFlowOrigin::BOTTOM_LEFT:
+        //     i = (_height - 1 - i);
+        //     if (_direction == DataFlowDirection::HORIZONTAL)
+        //     {
+        //         if (i % 2 == 0)
+        //             index = i * _width + j;
+        //         else
+        //             index = i * _width + (_width - j - 1);
+        //     }
+        //     else
+        //     {
+        //         // TODO
+        //     }
+        //     break;
+        // case DataFlowOrigin::BOTTOM_RIGHT:
+        //     if (_direction == DataFlowDirection::HORIZONTAL)
+        //     {
+        //         // TODO
+        //     }
+        //     else
+        //     {
+        //         j = (_width - 1 - j);
 
-                if (j % 2 == 0) // going up (inverted)
-                    index = j * _height + (_height - 1 - i);
-                else // going down (correct)
-                    index = j * _height + i;
-            }
-            break;
+        //         if (j % 2 == 0) // going up (inverted)
+        //             index = j * _height + (_height - 1 - i);
+        //         else // going down (correct)
+        //             index = j * _height + i;
+        //     }
+        //     break;
         case DataFlowOrigin::TOP_LEFT:
         default:
             if (_direction == DataFlowDirection::HORIZONTAL)
             {
-                // TODO
+                // TODO, my led matrix has vertical strips
             }
             else
             {
