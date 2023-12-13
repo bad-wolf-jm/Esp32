@@ -8,6 +8,8 @@
 #include <FastLED.h>
 
 #include "Framebuffer/framebuffer2D.h"
+#include "Framebuffer/LedStrip.h"
+#include "Effects/Glow2D.h"
 
 TFT_eSPI gDisplay;
 
@@ -45,7 +47,11 @@ const char *gPuzzleElements[] = {
 CRGB leds[NUM_LEDS];
 
 // matrix_t led_matrix(16, 16, DataFlowOrigin::TOP_LEFT, DataFlowDirection::VERTICAL);
-framebuffer2D_t led_matrix(16, 16, DataFlowOrigin::TOP_RIGHT, DataFlowDirection::HORIZONTAL);
+// framebuffer2D_t led_matrix(16, 16, DataFlowOrigin::TOP_RIGHT, DataFlowDirection::HORIZONTAL);
+
+LedStrip led_strip(144u, true);
+Glow2D glow_effect(144u);
+
 // matrix_t led_matrix(16, 16, DataFlowOrigin::BOTTOM_LEFT, DataFlowDirection::HORIZONTAL);
 // matrix_t led_matrix(16, 16, DataFlowOrigin::BOTTOM_RIGHT, DataFlowDirection::VERTICAL);
 std::string pulsar_data = 
@@ -186,30 +192,30 @@ void setup()
     attachInterrupt(BUTTON_1_PIN, Button1Pressed, FALLING);
     attachInterrupt(BUTTON_2_PIN, Button2Pressed, FALLING);
 
-    for (int i=0; i < (GRID_SIZE+2)*(GRID_SIZE+2); i++)
-    {
-        state_0[i] = pulsar_data[i] == 'O' ? 1 : 0;
-    }
+    // for (int i=0; i < (GRID_SIZE+2)*(GRID_SIZE+2); i++)
+    // {
+    //     state_0[i] = pulsar_data[i] == 'O' ? 1 : 0;
+    // }
 
-    for (int i=0; i < (GRID_SIZE+2)*(GRID_SIZE+2); i++)
-    {
-        state_0[i] = (uint8_t)random(2);
-    }
+    // for (int i=0; i < (GRID_SIZE+2)*(GRID_SIZE+2); i++)
+    // {
+    //     state_0[i] = (uint8_t)random(2);
+    // }
 
 
-    for (uint32_t i = 0; i < 16; i++)
-    {
-        for (uint32_t j = 0; j < 16; j++)
-        {
-            char v = back[(i+1) * (GRID_SIZE+2) + (j+1)];
-            pixelValues[i * 16 + j] = (v == 0) ? CRGB::Black : CRGB::White;
-        }
-    }
+    // for (uint32_t i = 0; i < 16; i++)
+    // {
+    //     for (uint32_t j = 0; j < 16; j++)
+    //     {
+    //         char v = back[(i+1) * (GRID_SIZE+2) + (j+1)];
+    //         pixelValues[i * 16 + j] = (v == 0) ? CRGB::Black : CRGB::White;
+    //     }
+    // }
 
-    led_matrix.Clear();
-    led_matrix.SetPixels(pixelValues);
-    led_matrix.Present();
-    delay(1000);
+    // led_matrix.Clear();
+    // led_matrix.SetPixels(pixelValues);
+    // led_matrix.Present();
+    // delay(1000);
 
     // Update(front, back);
 
@@ -269,6 +275,14 @@ void loop()
     // FastLED.show();
     // delay(30);
 
+    led_strip.Clear();
+    glow_effect.Update();
+    led_strip.SetPixels(glow_effect.GetColors());
+    // led_strip.SetPixel(position, CRGB::Magenta);
+    // position = (position + 1) % 144;
+    led_strip.Present();
+    delay(50);
+#if 0
     Update(front, back);
 
     for (uint32_t i = 0; i < 16; i++)
@@ -286,7 +300,7 @@ void loop()
     led_matrix.SetPixels(pixelValues);
     led_matrix.Present();
     delay(50);
-
+#endif
     // for (uint32_t i = 0; i < 16; i++)
     // {
     //     for (uint32_t j = 0; j < 16; j++)

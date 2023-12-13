@@ -5,6 +5,7 @@
 
 class LedStrip
 {
+public:
     LedStrip(uint32_t length, bool isReversed);
 
     void Clear();
