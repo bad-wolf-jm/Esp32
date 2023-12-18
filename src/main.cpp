@@ -7,8 +7,8 @@
 #define FASTLED_INTERNAL
 #include <FastLED.h>
 
-#include "Framebuffer/framebuffer2D.h"
-#include "Framebuffer/LedStrip.h"
+#include "Framebuffer/Framebuffer2D.h"
+#include "Framebuffer/Framebuffer1D.h"
 #include "Effects/Glow2D.h"
 
 TFT_eSPI gDisplay;
@@ -47,9 +47,9 @@ const char *gPuzzleElements[] = {
 CRGB leds[NUM_LEDS];
 
 // matrix_t led_matrix(16, 16, DataFlowOrigin::TOP_LEFT, DataFlowDirection::VERTICAL);
-// framebuffer2D_t led_matrix(16, 16, DataFlowOrigin::TOP_RIGHT, DataFlowDirection::HORIZONTAL);
+// Framebuffer2D led_matrix(16, 16, DataFlowOrigin::TOP_RIGHT, DataFlowDirection::HORIZONTAL);
 
-LedStrip led_strip(144u, true);
+Framebuffer1D<17, GRB> led_strip(144u, true);
 Glow2D glow_effect(144u);
 
 // matrix_t led_matrix(16, 16, DataFlowOrigin::BOTTOM_LEFT, DataFlowDirection::HORIZONTAL);
@@ -188,9 +188,9 @@ void setup()
     pinMode(BUTTON_1_PIN, INPUT_PULLUP);
     pinMode(BUTTON_2_PIN, INPUT_PULLUP);
 
-    gButton1LastPress = gButton2LastPress = 0;
-    attachInterrupt(BUTTON_1_PIN, Button1Pressed, FALLING);
-    attachInterrupt(BUTTON_2_PIN, Button2Pressed, FALLING);
+    // gButton1LastPress = gButton2LastPress = 0;
+    // attachInterrupt(BUTTON_1_PIN, Button1Pressed, FALLING);
+    // attachInterrupt(BUTTON_2_PIN, Button2Pressed, FALLING);
 
     // for (int i=0; i < (GRID_SIZE+2)*(GRID_SIZE+2); i++)
     // {
@@ -278,8 +278,6 @@ void loop()
     led_strip.Clear();
     glow_effect.Update();
     led_strip.SetPixels(glow_effect.GetColors());
-    // led_strip.SetPixel(position, CRGB::Magenta);
-    // position = (position + 1) % 144;
     led_strip.Present();
     delay(50);
 #if 0
