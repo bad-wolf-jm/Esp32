@@ -3,13 +3,13 @@
 #include <FastLED.h>
 #include <vector>
 
-template <uint8_t DATA_PIN, EOrder RGB_ORDER>
+template <int LED_COUNT, uint8_t DATA_PIN, EOrder RGB_ORDER>
 class LedStripBase
 {
   public:
-    LedStripBase( uint32_t length )
-        : _ledCount{ length }
-        , _ledArray{ std::vector<CRGB>( length ) }
+    LedStripBase( )
+        : _ledCount{ LED_COUNT }
+        , _ledArray{ std::vector<CRGB>( LED_COUNT ) }
 
     {
         _driver.addLeds<WS2812, DATA_PIN, RGB_ORDER>( _ledArray.data(), _ledCount );

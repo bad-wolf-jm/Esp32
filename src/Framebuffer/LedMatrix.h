@@ -3,10 +3,8 @@
 #include "LedStripBase.h"
 
 template <uint8_t PANEL_WIDTH, uint8_t PANEL_HEIGHT, uint8_t GRID_WIDTH, uint8_t GRID_HEIGHT, uint8_t DATA_PIN, EOrder RGB_ORDER>
-class LedMatrix : public LedStripBase<DATA_PIN, RGB_ORDER>
+class LedMatrix : public LedStripBase<PANEL_WIDTH * GRID_WIDTH * PANEL_HEIGHT * GRID_HEIGHT, DATA_PIN, RGB_ORDER>
 {
-    using LedStripBase<DATA_PIN, RGB_ORDER>::_ledArray;
-    using LedStripBase<DATA_PIN, RGB_ORDER>::_ledCount;
 
   public:
     static constexpr int Width  = PANEL_WIDTH * GRID_WIDTH;
@@ -15,9 +13,12 @@ class LedMatrix : public LedStripBase<DATA_PIN, RGB_ORDER>
   private:
     static constexpr int _numPixelsPerGridRow = Width * PANEL_HEIGHT;
 
+    using LedStripBase<Width * Height, DATA_PIN, RGB_ORDER>::_ledArray;
+    using LedStripBase<Width * Height, DATA_PIN, RGB_ORDER>::_ledCount;
+
   public:
     LedMatrix()
-        : LedStripBase<DATA_PIN, RGB_ORDER>( Width * Height )
+        : LedStripBase<Width * Height, DATA_PIN, RGB_ORDER>()
     {
     }
 

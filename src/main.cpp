@@ -51,7 +51,7 @@ void loop()
     {
         if( ( position_x == 0 ) && ( position_y == 0 ) )
             led_matrix.Clear();
-        led_matrix.SetPixel( position_y, position_x, CRGB::Amethyst );
+        led_matrix.SetPixel( position_y, position_x, CRGB::DarkOrchid );
         position_x = ( position_x + 1 ) % led_matrix.Width;
         if( position_x == 0 )
             position_y = ( position_y + 1 )  % led_matrix.Height;
