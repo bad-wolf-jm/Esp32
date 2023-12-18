@@ -1,16 +1,16 @@
 #pragma once
 
-#include "LedFramebufferBase.h"
+#include "LedStripBase.h"
 
 template <uint8_t DATA_PIN, EOrder RGB_ORDER>
-class Framebuffer1D : public LedFramebufferBase<DATA_PIN, RGB_ORDER>
+class LedStrip : public LedStripBase<DATA_PIN, RGB_ORDER>
 {
-    using LedFramebufferBase<DATA_PIN, RGB_ORDER>::_ledArray;
-    using LedFramebufferBase<DATA_PIN, RGB_ORDER>::_ledCount;
+    using LedStripBase<DATA_PIN, RGB_ORDER>::_ledArray;
+    using LedStripBase<DATA_PIN, RGB_ORDER>::_ledCount;
 
   public:
-    Framebuffer1D( uint32_t length, bool isReversed )
-        : LedFramebufferBase<DATA_PIN, RGB_ORDER>( length )
+    LedStrip( uint32_t length, bool isReversed )
+        : LedStripBase<DATA_PIN, RGB_ORDER>( length )
         , _isReversed{ isReversed }
     {
     }

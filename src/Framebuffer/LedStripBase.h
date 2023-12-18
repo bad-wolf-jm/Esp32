@@ -4,10 +4,10 @@
 #include <vector>
 
 template <uint8_t DATA_PIN, EOrder RGB_ORDER>
-class LedFramebufferBase
+class LedStripBase
 {
   public:
-    LedFramebufferBase( uint32_t length )
+    LedStripBase( uint32_t length )
         : _ledCount{ length }
         , _ledArray{ std::vector<CRGB>( length ) }
 
