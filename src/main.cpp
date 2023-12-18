@@ -21,7 +21,7 @@ const uint32_t BUTTON_PRESS_THRESHOLD = 30;
 // matrix_t led_matrix(16, 16, DataFlowOrigin::TOP_LEFT, DataFlowDirection::VERTICAL);
 // LedMatrix led_matrix(16, 16, DataFlowOrigin::TOP_RIGHT, DataFlowDirection::HORIZONTAL);
 
-// LedStrip<17, GRB> led_strip(256u * 3, false);
+// LedStrip<144, true, 17, GRB> led_strip(256u * 3, false);
 LedMatrix<16, 16, 3, 1, 17, GRB> led_matrix;
 Glow2D             glow_effect( 256u * 3 );
 

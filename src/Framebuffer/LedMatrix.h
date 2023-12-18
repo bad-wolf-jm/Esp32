@@ -24,21 +24,25 @@ class LedMatrix : public LedStripBase<PANEL_WIDTH * GRID_WIDTH * PANEL_HEIGHT * 
 
     inline void SetPixel( uint32_t i, uint32_t j, CRGB value )
     {
+        _ledArray[GetIndex(i, j)] = value;
+    }
+
+    void SetPixels( std::vector<CRGB> const &pixelValues )
+    {
+        std::copy( pixelValues.begin(), pixelValues.end(), _ledArray.begin() );
+    }
+
+  private:
+    inline int GetIndex( uint32_t i, uint32_t j )
+    {
         int index   = 0;
         int gridRow = i / PANEL_HEIGHT;
 
         i = i % PANEL_HEIGHT;
 
         if( ( j & 0x01 ) == 1 )
-            index = ( j + 1 ) * PANEL_HEIGHT - ( i + 1 );
+            return _numPixelsPerGridRow * gridRow + ( ( j + 1 ) * PANEL_HEIGHT - ( i + 1 ) );
         else
-            index = j * PANEL_HEIGHT + i;
-
-        _ledArray[_numPixelsPerGridRow * gridRow + index] = value;
-    }
-
-    void SetPixels( std::vector<CRGB> const &pixelValues )
-    {
-        std::copy( pixelValues.begin(), pixelValues.end(), _ledArray.begin() );
+            return _numPixelsPerGridRow * gridRow + ( j * PANEL_HEIGHT + i );
     }
 };
