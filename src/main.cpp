@@ -27,52 +27,85 @@ const uint32_t BUTTON_PRESS_THRESHOLD = 30;
 // matrix_t led_matrix(16, 16, DataFlowOrigin::TOP_LEFT, DataFlowDirection::VERTICAL);
 // LedMatrix led_matrix(16, 16, DataFlowOrigin::TOP_RIGHT, DataFlowDirection::HORIZONTAL);
 
-// LedStrip<144, true, 17, GRB> led_strip(256u * 3, false);
-LedMatrix<16, 16, 3, 1, 17, GRB> led_matrix;
-Glow2D                           glow_effect( 256u * 3 );
+LedStrip<17, GRB> led_strip( 144, false );
+// LedMatrix<17, GRB> led_matrix(16, 16, 3, 1);
+Glow2D glow_effect( 256u * 3 );
 
 #define SCREEN_PRIORITY ( tskIDLE_PRIORITY + 3 )
 #define SCREEN_CORE     1
+#define LED_PRIORITY    ( tskIDLE_PRIORITY + 3 )
+#define LED_CORE        1
 
 TaskHandle_t _screenTaskHandle;
+TaskHandle_t _ledTaskHandle;
 
 void IRAM_ATTR UpdateScreen( void *param )
 {
     for( ;; )
     {
         gDisplay->BeginFrame();
-        gDisplay->DrawText( str_sprintf("C0: %4.1f%%", TM.GetCPUUsagePercent( 0 )), 5, 5 ); //, position_x, position_y);
-        gDisplay->DrawText( str_sprintf("C1: %4.1f%%", TM.GetCPUUsagePercent( 1 )), 5, 35 );     //, position_x, position_y);
+        gDisplay->DrawText( str_sprintf( "CPU: %4.1f%% - %4.1f%%", TM.GetCPUUsagePercent( 0 ), TM.GetCPUUsagePercent( 1 ) ), 5,
+                            5 ); //, position_x, position_y);
         gDisplay->EndFrame();
         delay( 100 );
+    }
+}
+
+void IRAM_ATTR UpdateLeds( void *param )
+{
+    float lineStart  = 0.0;
+    float lineLength = 15.25;
+    // static int position_x = 0;
+    // static int position_y = 0;
+
+    for( ;; )
+    {
+        // EVERY_N_MILLISECONDS( 1 )
+        // {
+        led_strip.Clear();
+        led_strip.DrawLine( lineStart, lineLength, CRGB::Red );
+        lineLength += 0.25;
+        lineStart += 0.25;
+        if( lineStart + lineLength >= 144 )
+        {
+            lineStart += 0.5;
+            lineLength -= 0.5;
+        }
+
+        if( lineStart >= 144 )
+        {
+            lineStart  = 0.0;
+            lineLength = 15.25;
+        }
+        // if( ( position_x == 0 ) && ( position_y == 0 ) )
+        //     led_matrix.Clear();
+        // led_matrix.SetPixel( position_y, position_x, CRGB::DarkOrchid );
+        // position_x = ( position_x + 1 ) % led_matrix.Width;
+        // if( position_x == 0 )
+        //     position_y = ( position_y + 1 ) % led_matrix.Height;
+        led_strip.Present();
+        // }
     }
 }
 
 void setup()
 {
     Serial.begin( 9600 );
-    Serial.println( "" );
-    Serial.println( "" );
     Serial.println( "==========================================" );
     Serial.println( "|                TEST                    |" );
     Serial.println( "==========================================" );
 
-    // tft.init();
-    // tft.setRotation( 0 );
-
     GraphicsConfiguration config{};
     config.Width    = (uint32_t)TFT_WIDTH;
     config.Height   = (uint32_t)TFT_HEIGHT;
-    config.Rotation = (uint8_t)0;
+    config.Rotation = (uint8_t)1;
     gDisplay        = std::make_unique<Graphics>( config );
 
-    // gDisplay->BeginFrame();
-    // gDisplay->EndFrame();
-    // TaskFunction_t
     pinMode( BUTTON_1_PIN, INPUT_PULLUP );
     pinMode( BUTTON_2_PIN, INPUT_PULLUP );
     TM.Start();
     TM.StartThread( UpdateScreen, "UpdateScreen", DEFAULT_STACK_SIZE, SCREEN_PRIORITY, &_screenTaskHandle, SCREEN_CORE );
+    TM.StartThread( UpdateLeds, "UpdateLeds", DEFAULT_STACK_SIZE, LED_PRIORITY, &_ledTaskHandle, LED_CORE );
 }
 
 void drawStar( int x, int y, int star_color );
@@ -82,17 +115,6 @@ void numberBox( int x, int y, float num );
 // {
 //     static int position_x = 0;
 //     static int position_y = 0;
-
-//     // EVERY_N_MILLISECONDS( 5 )
-//     // {
-//     //     if( ( position_x == 0 ) && ( position_y == 0 ) )
-//     //         led_matrix.Clear();
-//     //     led_matrix.SetPixel( position_y, position_x, CRGB::DarkOrchid );
-//     //     position_x = ( position_x + 1 ) % led_matrix.Width;
-//     //     if( position_x == 0 )
-//     //         position_y = ( position_y + 1 )  % led_matrix.Height;
-//     //     led_matrix.Present();
-//     // }
 
 // }
 
