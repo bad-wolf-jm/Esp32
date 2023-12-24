@@ -7,11 +7,17 @@
 #define FASTLED_INTERNAL
 #include <FastLED.h>
 
+#include "Display/Graphics.h"
 #include "Effects/Glow2D.h"
 #include "Framebuffer/LedMatrix.h"
 #include "Framebuffer/LedStrip.h"
+#include "TaskManager.h"
 
-TFT_eSPI gDisplay;
+std::unique_ptr<Graphics> gDisplay;
+TaskManager               TM;
+
+TFT_eSPI tft;
+// TFT_eSprite img = TFT_eSprite( &tft );
 
 const uint32_t BUTTON_1_PIN = 35;
 const uint32_t BUTTON_2_PIN = 0;
@@ -23,7 +29,24 @@ const uint32_t BUTTON_PRESS_THRESHOLD = 30;
 
 // LedStrip<144, true, 17, GRB> led_strip(256u * 3, false);
 LedMatrix<16, 16, 3, 1, 17, GRB> led_matrix;
-Glow2D             glow_effect( 256u * 3 );
+Glow2D                           glow_effect( 256u * 3 );
+
+#define SCREEN_PRIORITY ( tskIDLE_PRIORITY + 3 )
+#define SCREEN_CORE     1
+
+TaskHandle_t _screenTaskHandle;
+
+void IRAM_ATTR UpdateScreen( void *param )
+{
+    for( ;; )
+    {
+        gDisplay->BeginFrame();
+        gDisplay->DrawText( str_sprintf("C0: %4.1f%%", TM.GetCPUUsagePercent( 0 )), 5, 5 ); //, position_x, position_y);
+        gDisplay->DrawText( str_sprintf("C1: %4.1f%%", TM.GetCPUUsagePercent( 1 )), 5, 35 );     //, position_x, position_y);
+        gDisplay->EndFrame();
+        delay( 100 );
+    }
+}
 
 void setup()
 {
@@ -34,63 +57,149 @@ void setup()
     Serial.println( "|                TEST                    |" );
     Serial.println( "==========================================" );
 
-    gDisplay.init();
-    gDisplay.setRotation( 1 );
-    gDisplay.fillScreen( TFT_BLUE );
+    // tft.init();
+    // tft.setRotation( 0 );
 
+    GraphicsConfiguration config{};
+    config.Width    = (uint32_t)TFT_WIDTH;
+    config.Height   = (uint32_t)TFT_HEIGHT;
+    config.Rotation = (uint8_t)0;
+    gDisplay        = std::make_unique<Graphics>( config );
+
+    // gDisplay->BeginFrame();
+    // gDisplay->EndFrame();
+    // TaskFunction_t
     pinMode( BUTTON_1_PIN, INPUT_PULLUP );
     pinMode( BUTTON_2_PIN, INPUT_PULLUP );
+    TM.Start();
+    TM.StartThread( UpdateScreen, "UpdateScreen", DEFAULT_STACK_SIZE, SCREEN_PRIORITY, &_screenTaskHandle, SCREEN_CORE );
 }
+
+void drawStar( int x, int y, int star_color );
+void numberBox( int x, int y, float num );
+
+// void loop()
+// {
+//     static int position_x = 0;
+//     static int position_y = 0;
+
+//     // EVERY_N_MILLISECONDS( 5 )
+//     // {
+//     //     if( ( position_x == 0 ) && ( position_y == 0 ) )
+//     //         led_matrix.Clear();
+//     //     led_matrix.SetPixel( position_y, position_x, CRGB::DarkOrchid );
+//     //     position_x = ( position_x + 1 ) % led_matrix.Width;
+//     //     if( position_x == 0 )
+//     //         position_y = ( position_y + 1 )  % led_matrix.Height;
+//     //     led_matrix.Present();
+//     // }
+
+// }
 
 void loop()
 {
-    static int position_x = 0;
-    static int position_y = 0;
+    delay( 10000 );
+    // static int position_x = 0;
+    // static int position_y = 0;
+    // constexpr int step = 5;
 
-    EVERY_N_MILLISECONDS( 5 )
-    {
-        if( ( position_x == 0 ) && ( position_y == 0 ) )
-            led_matrix.Clear();
-        led_matrix.SetPixel( position_y, position_x, CRGB::DarkOrchid );
-        position_x = ( position_x + 1 ) % led_matrix.Width;
-        if( position_x == 0 )
-            position_y = ( position_y + 1 )  % led_matrix.Height;
-        led_matrix.Present();
-    }
+    // tft.fillScreen( TFT_NAVY );
 
-    // led_strip.Clear();
-    // glow_effect.Update();
-    // led_strip.SetPixels(glow_effect.GetColors());
-    // led_strip.Present();
+    // // Draw 10 sprites containing a "transparent" colour
+    // for( int i = 0; i < 10; i++ )
+    // {
+    //     int x = random( 240 - 70 );
+    //     int y = random( 320 - 80 );
+    //     int c = random( 0x10000 ); // Random colour
+    //     drawStar( x, y, c );
+    // }
 
-    // led_matrix.Clear();
-    // glow_effect.Update();
-    // led_matrix.SetPixels(glow_effect.GetColors());
-    // led_matrix.Present();
-    // delay(10);
+    // delay( 2000 );
 
-#if 0
-int n = WiFi.scanNetworks();
+    // uint32_t dt = millis();
 
-    if (n > 0)
-    {
-        char buffer[256];
-        gDisplay.fillScreen(TFT_BLUE);
-        sprintf(buffer, "There are %d networks", n);
-        gDisplay.setCursor(2' ', 1' ', 2);
-        gDisplay.setTextColor(TFT_PINK);
-        gDisplay.println(buffer);
+    // // Now go bananas and draw 500 more
+    // for( int i = 0; i < 500; i++ )
+    // {
+    //     int x = random( 240 - 70 );
+    //     int y = random( 320 - 80 );
+    //     int c = random( 0x10000 ); // Random colour
+    //     drawStar( x, y, c );
+    //     yield(); // Stop watchdog reset
+    // }
 
-        for (uint32_t i = 0; i < n; i++)
-        {
-            char buffer[256];
-            sprintf(buffer, "SSID: %s - Strength %d", WiFi.SSID(i), WiFi.RSSI(i));
-            gDisplay.setCursor(2' ', 15 * (i + 2), 2);
-            gDisplay.setTextColor(TFT_PINK);
-            gDisplay.println(buffer);
-        }
-    }
-#endif
+    // Show time in milliseconds to draw and then push 1 sprite to TFT screen
+    // numberBox( 10, 10, ( millis() - dt ) / 500.0 );
 
-    // Serial.println("Hello!!");
+    // delay( 2000 );
 }
+
+// // #########################################################################
+// // Create sprite, plot graphics in it, plot to screen, then delete sprite
+// // #########################################################################
+// void drawStar( int x, int y, int star_color )
+// {
+//     // Create an 8-bit sprite 70x 80 pixels (uses 5600 bytes of RAM)
+//     img.setColorDepth( 8 );
+//     img.createSprite( 70, 80 );
+
+//     // Fill Sprite with a "transparent" colour
+//     // TFT_TRANSPARENT is already defined for convenience
+//     // We could also fill with any colour as "transparent" and later specify that
+//     // same colour when we push the Sprite onto the screen.
+//     img.fillSprite( TFT_TRANSPARENT );
+
+//     // Draw 2 triangles to create a filled in star
+//     img.fillTriangle( 35, 0, 0, 59, 69, 59, star_color );
+//     img.fillTriangle( 35, 79, 0, 20, 69, 20, star_color );
+
+//     // Punch a star shaped hole in the middle with a smaller transparent star
+//     img.fillTriangle( 35, 7, 6, 56, 63, 56, TFT_TRANSPARENT );
+//     img.fillTriangle( 35, 73, 6, 24, 63, 24, TFT_TRANSPARENT );
+
+//     // Push sprite to TFT screen CGRAM at coordinate x,y (top left corner)
+//     // Specify what colour is to be treated as transparent.
+//     img.pushSprite( x, y, TFT_TRANSPARENT );
+
+//     // Delete it to free memory
+//     img.deleteSprite();
+// }
+
+// // #########################################################################
+// // Draw a number in a rounded rectangle with some transparent pixels
+// // #########################################################################
+// void numberBox( int x, int y, float num )
+// {
+
+// // Size of sprite
+// #define IWIDTH  80
+// #define IHEIGHT 35
+
+//     // Create a 8-bit sprite 80 pixels wide, 35 high (2800 bytes of RAM needed)
+//     img.setColorDepth( 8 );
+//     img.createSprite( IWIDTH, IHEIGHT );
+
+//     // Fill it with black (this will be the transparent colour this time)
+//     img.fillSprite( TFT_BLACK );
+
+//     // Draw a background for the numbers
+//     img.fillRoundRect( 0, 0, 80, 35, 15, TFT_RED );
+//     img.drawRoundRect( 0, 0, 80, 35, 15, TFT_WHITE );
+
+//     // Set the font parameters
+//     img.setTextSize( 1 );          // Font size scaling is x1
+//     img.setTextColor( TFT_WHITE ); // White text, no background colour
+
+//     // Set text coordinate datum to middle right
+//     img.setTextDatum( MR_DATUM );
+
+//     // Draw the number to 3 decimal places at 70,20 in font 4
+//     img.drawFloat( num, 3, 70, 20, 4 );
+
+//     // Push sprite to TFT screen CGRAM at coordinate x,y (top left corner)
+//     // All black pixels will not be drawn hence will show as "transparent"
+//     img.pushSprite( x, y, TFT_BLACK );
+
+//     // Delete sprite to free up the RAM
+//     img.deleteSprite();
+// }
