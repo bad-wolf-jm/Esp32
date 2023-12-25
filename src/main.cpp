@@ -45,38 +45,44 @@ void IRAM_ATTR UpdateScreen( void *param )
 {
     for( ;; )
     {
+        long frameStart = millis();
+
         gDisplay->BeginFrame();
-        gDisplay->DrawText( str_sprintf( "CPU: %4.1f%% - %4.1f%%", TM.GetCPUUsagePercent( 0 ), TM.GetCPUUsagePercent( 1 ) ), 5,
-                            5 ); //, position_x, position_y);
+        gDisplay->DrawText( str_sprintf( "CPU:   %4.1f%% - %4.1f%%", TM.GetCPUUsagePercent( 0 ), TM.GetCPUUsagePercent( 1 ) ), 5, 5 );
+        gDisplay->DrawText( str_sprintf( "HEAP:  F: %.1fKB - T: %.1fKB", ESP.getFreeHeap() / 1024.0, ESP.getHeapSize() / 1024.0 ), 5, 20 );
+        gDisplay->DrawText( str_sprintf( "PSRAM: F: %.1fKB - T: %.1fKB", ESP.getFreePsram() / 1024.0, ESP.getPsramSize() ), 5, 35 );
         gDisplay->EndFrame();
-        delay( 100 );
+
+        long frameDuration = millis() - frameStart;
+        if( frameDuration < 1000 )
+            delay( 1000 - frameDuration );
     }
 }
 
 void IRAM_ATTR UpdateLeds( void *param )
 {
     float lineStart  = 0.0;
-    float lineLength = 15.25;
+    float lineLength = .15;
     // static int position_x = 0;
     // static int position_y = 0;
 
     for( ;; )
     {
         long frameStart = millis();
-        led_renderer.Clear(CRGB::Black);
+        led_renderer.Clear( CRGB::Black );
         led_renderer.DrawLine( lineStart, lineLength, CRGB::Red );
-        lineLength += 0.25;
-        lineStart += 0.25;
-        if( lineStart + lineLength >= 144 )
+        lineLength += 0.01;
+        lineStart += 0.01;
+        if( lineStart + lineLength >= 1.0 )
         {
-            lineStart += 0.5;
-            lineLength -= 0.5;
+            lineStart += 0.01;
+            lineLength -= 0.01;
         }
 
-        if( lineStart >= 144 )
+        if( lineStart >= 1.0 )
         {
             lineStart  = 0.0;
-            lineLength = 15.25;
+            lineLength = .15;
         }
         // if( ( position_x == 0 ) && ( position_y == 0 ) )
         //     led_matrix.Clear();
@@ -84,7 +90,7 @@ void IRAM_ATTR UpdateLeds( void *param )
         // position_x = ( position_x + 1 ) % led_matrix.Width;
         // if( position_x == 0 )
         //     position_y = ( position_y + 1 ) % led_matrix.Height;
-        // led_strip.Clear();
+        led_strip.Clear();
         led_strip.Blit( led_renderer );
         led_strip.Present();
         long frameDuration = millis() - frameStart;

@@ -8,7 +8,9 @@ class LedStripRenderer
 {
   public:
     LedStripRenderer( float length, int dpi )
-        : _ledCount{ (uint32_t)( length * dpi ) }
+        : _length{ length }
+        , _dpi{ dpi }
+        , _ledCount{ (uint32_t)( _length * _dpi ) }
         , _ledArray{ std::vector<CRGB>( _ledCount ) }
     {
     }
@@ -28,9 +30,18 @@ class LedStripRenderer
         return _ledArray;
     }
 
-    inline void SetPixel( float x, CRGB value )
+    inline void SetPixel( int x, CRGB value )
     {
-        _ledArray[(int)x] = value;
+        _ledArray[x] = value;
+    }
+
+    inline void SetPixel( float x, CRGB color )
+    {
+        float intensity0 = 1.0f - ( x - (int)x );
+        float intensity1 = x - (int)x;
+
+        _ledArray[(int)x] += ColorFraction( color, intensity0 );
+        _ledArray[(int)x + 1] += ColorFraction( color, intensity1 );
     }
 
     inline CRGB ColorFraction( CRGB in, float fraction )
@@ -41,9 +52,9 @@ class LedStripRenderer
 
     inline void DrawLine( float startPosition, float length, CRGB color )
     {
-        int positionInStrip = startPosition;
+        int positionInStrip = ( startPosition * _dpi );
 
-        float remaining = std::min( length, _ledCount - startPosition );
+        float remaining = std::min( length * _dpi, _ledCount - startPosition * _dpi);
 
         // First led
         if( remaining > 0.0 )
@@ -60,15 +71,15 @@ class LedStripRenderer
         }
 
         if( remaining > 0.0 )
-        {
             _ledArray[positionInStrip] += ColorFraction( color, remaining );
-        }
     }
 
   protected:
     uint32_t _isReversed = 0;
 
   private:
+    float             _length;
+    uint32_t          _dpi;
     uint32_t          _ledCount = 0;
     std::vector<CRGB> _ledArray;
 };
