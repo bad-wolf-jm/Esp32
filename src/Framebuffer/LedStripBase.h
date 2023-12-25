@@ -13,6 +13,7 @@ class LedStripBase
 
     {
         _driver.addLeds<WS2812, DATA_PIN, RGB_ORDER>( _ledArray.data(), _ledCount );
+        std::fill(_ledArray.begin(), _ledArray.end(), CRGB::Black);
         SetBrightness( brightness );
     }
 
