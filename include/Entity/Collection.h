@@ -28,7 +28,7 @@ namespace SE::Core
     class EntityCollection
     {
       private:
-        using EntityType       = Internal::Entity<EntityCollection *>;
+        using EntityType = Internal::Entity<EntityCollection *>;
         // using RelationshipType = Internal::sRelationship<EntityCollection *>;
 
       public:
@@ -64,7 +64,10 @@ namespace SE::Core
         ///
         /// The new entity initially has no components.
         ///
-        EntityType CreateRawEntity() { return { mRegistry.create(), this }; };
+        EntityType CreateRawEntity()
+        {
+            return { mRegistry.create(), this };
+        };
 
         /// @brief Create a new entity in the registry.
         ///
@@ -91,7 +94,10 @@ namespace SE::Core
         // };
 
         /// @brief Wrap en existing `entt` ID into our registry class.
-        EntityType WrapEntity( entt::entity const aEntity ) { return { aEntity, this }; };
+        EntityType WrapEntity( entt::entity const aEntity )
+        {
+            return { aEntity, this };
+        };
 
         /// @brief Create a new entity and add a `Tag` component with the given name.
         ///
@@ -137,7 +143,7 @@ namespace SE::Core
         // {
         //     EntityType lNewEntity = CreateEntityWithRelationship( aName );
         //     SetParent( lNewEntity, aParentEntity );
-            
+
         //     return lNewEntity;
         // }
 
@@ -145,7 +151,10 @@ namespace SE::Core
         ///
         /// @param aEntity Entity to remove.
         ///
-        void DestroyEntity( EntityType const &aEntity ) { mRegistry.destroy( aEntity ); }
+        void DestroyEntity( EntityType const &aEntity )
+        {
+            mRegistry.destroy( aEntity );
+        }
 
         /// @brief Iterate over all entities containing the listed components.
         ///
@@ -324,7 +333,8 @@ namespace SE::Core
 
                 for( auto &lHandler : aHandlers.Get<SignalHandler<Component>>().mHandlers )
                 {
-                    if( lHandler ) lHandler( l_Entity, l_Component );
+                    if( lHandler )
+                        lHandler( l_Entity, l_Component );
                 }
             }
         }
@@ -374,5 +384,8 @@ namespace SE::Core
 template <>
 struct std::hash<SE::Core::Entity>
 {
-    std::size_t operator()( SE::Core::Entity const &k ) const { return std::hash<uint32_t>()( static_cast<uint32_t>( k ) ); }
+    std::size_t operator()( SE::Core::Entity const &k ) const
+    {
+        return std::hash<uint32_t>()( static_cast<uint32_t>( k ) );
+    }
 };

@@ -13,6 +13,9 @@
 #include "Framebuffer/LedMatrix.h"
 #include "Framebuffer/LedStrip.h"
 #include "TaskManager.h"
+#include "Effects/LaserLine.h"
+
+// #include "entt/entt.hpp"
 
 std::unique_ptr<Graphics> gDisplay;
 TaskManager               TM;
@@ -28,7 +31,7 @@ const uint32_t BUTTON_PRESS_THRESHOLD = 30;
 // matrix_t led_matrix(16, 16, DataFlowOrigin::TOP_LEFT, DataFlowDirection::VERTICAL);
 // LedMatrix led_matrix(16, 16, DataFlowOrigin::TOP_RIGHT, DataFlowDirection::HORIZONTAL);
 
-LedStrip<17, GRB> led_strip( 144, true );
+LedStrip<17, GRB> led_strip( 144, false );
 LedStripRenderer  led_renderer( 1.0, 144 );
 // LedMatrix<17, GRB> led_matrix(16, 16, 3, 1);
 Glow2D glow_effect( 256u * 3 );
@@ -43,53 +46,79 @@ TaskHandle_t _ledTaskHandle;
 
 void IRAM_ATTR UpdateScreen( void *param )
 {
+    long frameStart = 0, frameDuration = 0;
     for( ;; )
     {
-        long frameStart = millis();
+        frameStart = millis();
 
         gDisplay->BeginFrame();
         gDisplay->DrawText( str_sprintf( "CPU:   %4.1f%% - %4.1f%%", TM.GetCPUUsagePercent( 0 ), TM.GetCPUUsagePercent( 1 ) ), 5, 5 );
-        gDisplay->DrawText( str_sprintf( "HEAP:  F: %.1fKB - T: %.1fKB", ESP.getFreeHeap() / 1024.0, ESP.getHeapSize() / 1024.0 ), 5, 20 );
-        gDisplay->DrawText( str_sprintf( "PSRAM: F: %.1fKB - T: %.1fKB", ESP.getFreePsram() / 1024.0, ESP.getPsramSize() ), 5, 35 );
+        gDisplay->DrawText( str_sprintf( "HEAP:  F: %.1fKB - T: %.1fKB", ESP.getFreeHeap() / 1024.0, ESP.getHeapSize() / 1024.0 ), 5,
+                            20 );
+        if( ESP.getPsramSize() > 0 )
+            gDisplay->DrawText( str_sprintf( "PSRAM: F: %.1fKB - T: %.1fKB", ESP.getFreePsram() / 1024.0, ESP.getPsramSize() ), 5,
+                                35 );
+        else
+            gDisplay->DrawText( str_sprintf( "PSRAM: N/A", ESP.getFreePsram() / 1024.0, ESP.getPsramSize() ), 5, 35 );
+
+        gDisplay->DrawText( str_sprintf( "SCREEN UPDATE: %dms", frameDuration ), 5, 50 );
         gDisplay->EndFrame();
 
-        long frameDuration = millis() - frameStart;
+        frameDuration = millis() - frameStart;
         if( frameDuration < 1000 )
             delay( 1000 - frameDuration );
     }
 }
 
+LaserLineEffect laser;
+
 void IRAM_ATTR UpdateLeds( void *param )
 {
     float lineStart  = 0.0;
     float lineLength = .15;
-    // static int position_x = 0;
-    // static int position_y = 0;
+
+    long time = millis();
+    long lastShot = millis();
 
     for( ;; )
     {
         long frameStart = millis();
+
         led_renderer.Clear( CRGB::Black );
-        led_renderer.DrawLine( lineStart, lineLength, CRGB::Red );
-        lineLength += 0.01;
-        lineStart += 0.01;
-        if( lineStart + lineLength >= 1.0 )
+        long ts = millis() - time;
+        laser.Update(ts / 1000.0f);
+        time = millis();
+
+        long timeSinceLastShot = millis() - lastShot;
+        if(timeSinceLastShot > 500)
         {
-            lineStart += 0.01;
-            lineLength -= 0.01;
+            laser.Fire();
+            lastShot = millis();
         }
 
-        if( lineStart >= 1.0 )
-        {
-            lineStart  = 0.0;
-            lineLength = .15;
-        }
+        // led_renderer.DrawLine( lineStart, lineLength, CRGB::Red );
+        // led_renderer.SetPixel( lineStart, CRGB::Red );
+        // lineLength += 0.01;
+        // lineStart += 0.01;
+        // if( lineStart + lineLength >= 1.0 )
+        // {
+        //     lineStart += 0.01;
+        //     lineLength -= 0.01;
+        // }
+
+        // if( lineStart >= 1.0 )
+        // {
+        //     lineStart  = 0.0;
+        //     lineLength = .15;
+        // }
         // if( ( position_x == 0 ) && ( position_y == 0 ) )
         //     led_matrix.Clear();
         // led_matrix.SetPixel( position_y, position_x, CRGB::DarkOrchid );
         // position_x = ( position_x + 1 ) % led_matrix.Width;
         // if( position_x == 0 )
         //     position_y = ( position_y + 1 ) % led_matrix.Height;
+        // led_renderer.Clear();
+        laser.Render(led_renderer);
         led_strip.Clear();
         led_strip.Blit( led_renderer );
         led_strip.Present();

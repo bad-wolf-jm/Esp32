@@ -63,12 +63,13 @@ namespace SE::Core::Internal
         T &Add( Args &&...aArgs ) const
         {
             // static_assert( !std::is_empty<T>::value, "Components should not be empty types." );
-            if( mParentRegistry->mRegistry.all_of<T>( mEntityHandle ) ) throw std::runtime_error( "Component already exists" );
+            if( mParentRegistry->mRegistry.all_of<T>( mEntityHandle ) )
+                throw std::runtime_error( "Component already exists" );
             if constexpr( std::is_empty<T>::value )
             {
                 mParentRegistry->mRegistry.emplace<T>( mEntityHandle );
 
-                return std::move(T{});
+                return std::move( T{} );
             }
             else
             {
@@ -96,7 +97,8 @@ namespace SE::Core::Internal
         T &TryAdd( Args &&...aArgs ) const
         {
             static_assert( !std::is_empty<T>::value, "Components should not be empty types." );
-            if( mParentRegistry->mRegistry.all_of<T>( mEntityHandle ) ) return mParentRegistry->mRegistry.get<T>( mEntityHandle );
+            if( mParentRegistry->mRegistry.all_of<T>( mEntityHandle ) )
+                return mParentRegistry->mRegistry.get<T>( mEntityHandle );
             T &lComponent = mParentRegistry->mRegistry.emplace<T>( mEntityHandle, std::forward<Args>( aArgs )... );
             return lComponent;
         }
@@ -168,7 +170,8 @@ namespace SE::Core::Internal
         T &TryGet( T &aDefault ) const
         {
             static_assert( !std::is_empty<T>::value, "Components should not be empty types." );
-            if( !Has<T>() ) return aDefault;
+            if( !Has<T>() )
+                return aDefault;
             return mParentRegistry->mRegistry.get<T>( mEntityHandle );
         }
 
@@ -182,7 +185,8 @@ namespace SE::Core::Internal
         template <typename T>
         void IfExists( std::function<void( T & )> aApplyFunction )
         {
-            if( !Has<T>() ) return;
+            if( !Has<T>() )
+                return;
             aApplyFunction( Get<T>() );
         }
 
@@ -195,8 +199,10 @@ namespace SE::Core::Internal
         template <typename T>
         bool Has() const
         {
-            if( mParentRegistry == nullptr ) return false;
-            if( mEntityHandle == entt::null ) return false;
+            if( mParentRegistry == nullptr )
+                return false;
+            if( mEntityHandle == entt::null )
+                return false;
             return mParentRegistry->mRegistry.all_of<T>( mEntityHandle );
         }
 
@@ -209,8 +215,10 @@ namespace SE::Core::Internal
         template <typename... Component>
         bool HasAll() const
         {
-            if( mParentRegistry == nullptr ) return false;
-            if( mEntityHandle == entt::null ) return false;
+            if( mParentRegistry == nullptr )
+                return false;
+            if( mEntityHandle == entt::null )
+                return false;
             return mParentRegistry->mRegistry.all_of<Component...>( mEntityHandle );
         }
 
@@ -223,9 +231,11 @@ namespace SE::Core::Internal
         template <typename... Component>
         bool HasAny() const
         {
-            if( mParentRegistry == nullptr ) return false;
+            if( mParentRegistry == nullptr )
+                return false;
 
-            if( mEntityHandle == entt::null ) return false;
+            if( mEntityHandle == entt::null )
+                return false;
 
             return mParentRegistry->mRegistry.any_of<Component...>( mEntityHandle );
         }
@@ -242,7 +252,8 @@ namespace SE::Core::Internal
         template <typename T>
         void Remove() const
         {
-            if( !( mParentRegistry->mRegistry.all_of<T>( mEntityHandle ) ) ) throw std::runtime_error( "Component does not exists" );
+            if( !( mParentRegistry->mRegistry.all_of<T>( mEntityHandle ) ) )
+                throw std::runtime_error( "Component does not exists" );
             mParentRegistry->mRegistry.remove<T>( mEntityHandle );
         }
 
@@ -258,7 +269,8 @@ namespace SE::Core::Internal
         template <typename T>
         void TryRemove() const
         {
-            if( !( mParentRegistry->mRegistry.all_of<T>( mEntityHandle ) ) ) return;
+            if( !( mParentRegistry->mRegistry.all_of<T>( mEntityHandle ) ) )
+                return;
             mParentRegistry->mRegistry.remove<T>( mEntityHandle );
         }
 
@@ -285,19 +297,34 @@ namespace SE::Core::Internal
         // }
 
         /// @brief Checks whether an entity is valid.
-        bool IsValid() const { return mParentRegistry->mRegistry.valid( mEntityHandle ); }
+        bool IsValid() const
+        {
+            return mParentRegistry->mRegistry.valid( mEntityHandle );
+        }
 
         /// @brief Checks whether an entity is `NULL`.
-        operator bool() const { return mEntityHandle != entt::null; }
+        operator bool() const
+        {
+            return mEntityHandle != entt::null;
+        }
 
         /// @brief Use the entity class directly in `entt` functions.
-        operator entt::entity() const { return mEntityHandle; }
+        operator entt::entity() const
+        {
+            return mEntityHandle;
+        }
 
         /// @brief Retrieve the `entt` ID of an `Entity`
-        operator uint32_t() const { return (uint32_t)mEntityHandle; }
+        operator uint32_t() const
+        {
+            return (uint32_t)mEntityHandle;
+        }
 
         /// @brief Returns a handle to the registry abstraction class.
-        ParentType GetRegistry() const { return mParentRegistry; };
+        ParentType GetRegistry() const
+        {
+            return mParentRegistry;
+        };
 
         /// @brief Test for equality of two `Entity` instance.
         bool operator==( const Entity &aOther ) const
@@ -306,7 +333,10 @@ namespace SE::Core::Internal
         }
 
         /// @brief Test for difference between two `Entity` instance.
-        bool operator!=( const Entity &aOther ) const { return !( *this == aOther ); }
+        bool operator!=( const Entity &aOther ) const
+        {
+            return !( *this == aOther );
+        }
 
         /// @brief Test for difference between two `Entity` instance.
         Entity &operator=( Entity const &aOther )
