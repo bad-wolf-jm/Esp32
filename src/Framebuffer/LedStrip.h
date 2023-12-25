@@ -15,47 +15,17 @@ class LedStrip : public LedStripBase<DATA_PIN, RGB_ORDER>
     {
     }
 
-    inline void SetPixel( uint32_t i, CRGB value )
-    {
-        _ledArray[GetIndex( i )] = value;
-    }
-
     inline void SetPixels( std::vector<CRGB> const &pixelValues )
     {
         for( int i = 0; i < _ledCount; i++ )
             _ledArray[GetIndex( i )] = pixelValues[i];
     }
 
-    inline CRGB ColorFraction( CRGB in, float fraction )
+    inline void Blit( LedStripRenderer const &renderer )
     {
-        fraction = std::min( 1.0f, fraction );
-        return CRGB( in ).fadeToBlackBy( 255 * ( 1.0f - fraction ) );
-    }
-
-    inline void DrawLine( float startPosition, float length, CRGB color )
-    {
-        int positionInStrip = startPosition;
-
-        float remaining = std::min( length, _ledCount - startPosition );
-
-        // First led
-        if( remaining > 0.0 )
-        {
-            float intensity = 1.0f - ( startPosition - (int)startPosition );
-            _ledArray[GetIndex( positionInStrip++ )] += ColorFraction( color, intensity );
-            remaining -= intensity;
-        }
-
-        while( remaining > 1.0 )
-        {
-            _ledArray[GetIndex( positionInStrip++ )] += color;
-            remaining -= 1.0;
-        }
-
-        if( remaining > 0.0 )
-        {
-            _ledArray[GetIndex( positionInStrip )] += ColorFraction( color, remaining );
-        }
+        auto const &renderedPixels = renderer.GetPixels();
+        for( int i = 0; i < _ledCount; i++ )
+            _ledArray[GetIndex( i )] = renderedPixels[i];
     }
 
   protected:

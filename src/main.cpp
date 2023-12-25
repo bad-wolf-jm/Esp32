@@ -9,6 +9,7 @@
 
 #include "Display/Graphics.h"
 #include "Effects/Glow2D.h"
+#include "Effects/LedStripRenderer.h"
 #include "Framebuffer/LedMatrix.h"
 #include "Framebuffer/LedStrip.h"
 #include "TaskManager.h"
@@ -27,7 +28,8 @@ const uint32_t BUTTON_PRESS_THRESHOLD = 30;
 // matrix_t led_matrix(16, 16, DataFlowOrigin::TOP_LEFT, DataFlowDirection::VERTICAL);
 // LedMatrix led_matrix(16, 16, DataFlowOrigin::TOP_RIGHT, DataFlowDirection::HORIZONTAL);
 
-LedStrip<17, GRB> led_strip( 144, false );
+LedStrip<17, GRB> led_strip( 144, true );
+LedStripRenderer  led_renderer( 1.0, 144 );
 // LedMatrix<17, GRB> led_matrix(16, 16, 3, 1);
 Glow2D glow_effect( 256u * 3 );
 
@@ -60,10 +62,9 @@ void IRAM_ATTR UpdateLeds( void *param )
 
     for( ;; )
     {
-        // EVERY_N_MILLISECONDS( 1 )
-        // {
-        led_strip.Clear();
-        led_strip.DrawLine( lineStart, lineLength, CRGB::Red );
+        long frameStart = millis();
+        led_renderer.Clear(CRGB::Black);
+        led_renderer.DrawLine( lineStart, lineLength, CRGB::Red );
         lineLength += 0.25;
         lineStart += 0.25;
         if( lineStart + lineLength >= 144 )
@@ -83,8 +84,13 @@ void IRAM_ATTR UpdateLeds( void *param )
         // position_x = ( position_x + 1 ) % led_matrix.Width;
         // if( position_x == 0 )
         //     position_y = ( position_y + 1 ) % led_matrix.Height;
+        // led_strip.Clear();
+        led_strip.Blit( led_renderer );
         led_strip.Present();
-        // }
+        long frameDuration = millis() - frameStart;
+
+        if( frameDuration < 30 )
+            delay( 30 - frameDuration );
     }
 }
 
