@@ -17,15 +17,17 @@ class LedStrip : public LedStripBase<DATA_PIN, RGB_ORDER>
 
     inline void SetPixels( std::vector<CRGB> const &pixelValues )
     {
-        for( int i = 0; i < _ledCount; i++ )
+        int count = std::min( _ledCount, pixelValues.size());
+        for( int i = 0; i < count; i++ )
             _ledArray[GetIndex( i )] = pixelValues[i];
     }
 
     inline void Blit( LedStripRenderer const &renderer )
     {
         auto const &renderedPixels = renderer.GetPixels();
-        for( int i = 0; i < _ledCount; i++ )
-            _ledArray[GetIndex( i )] = renderedPixels[i];
+        int count = std::min( _ledCount, renderedPixels.size());
+        for( int i = 0; i < count; i++ )
+            _ledArray[GetIndex( i )] += renderedPixels[i];
     }
 
   protected:
