@@ -33,7 +33,7 @@ const uint32_t BUTTON_PRESS_THRESHOLD = 30;
 
 LedStrip<17, GRB> led_strip( 144, false );
 LedStripRenderer  led_renderer( 1.0, 144 );
-// LedMatrix<17, GRB> led_matrix(16, 16, 3, 1);
+LedMatrix<21, GRB> led_matrix(16, 16, 3, 1);
 Glow2D glow_effect( 256u * 3 );
 
 #define SCREEN_PRIORITY ( tskIDLE_PRIORITY + 3 )
@@ -80,6 +80,10 @@ void IRAM_ATTR UpdateLeds( void *param )
     long time = millis();
     long lastShot = millis();
 
+    static int position_x = 0;
+    static int position_y = 0;
+
+
     for( ;; )
     {
         long frameStart = millis();
@@ -111,12 +115,13 @@ void IRAM_ATTR UpdateLeds( void *param )
         //     lineStart  = 0.0;
         //     lineLength = .15;
         // }
-        // if( ( position_x == 0 ) && ( position_y == 0 ) )
-        //     led_matrix.Clear();
-        // led_matrix.SetPixel( position_y, position_x, CRGB::DarkOrchid );
-        // position_x = ( position_x + 1 ) % led_matrix.Width;
-        // if( position_x == 0 )
-        //     position_y = ( position_y + 1 ) % led_matrix.Height;
+        if( ( position_x == 0 ) && ( position_y == 0 ) )
+            led_matrix.Clear();
+        led_matrix.SetPixel( position_y, position_x, CRGB::DarkOrchid );
+        position_x = ( position_x + 1 ) % led_matrix.Width;
+        if( position_x == 0 )
+            position_y = ( position_y + 1 ) % led_matrix.Height;
+        led_matrix.Present();
         // led_renderer.Clear();
         laser.Render(led_renderer);
         led_strip.Clear();
