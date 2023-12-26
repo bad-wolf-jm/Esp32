@@ -20,7 +20,7 @@
 std::unique_ptr<Graphics> gDisplay;
 TaskManager               TM;
 
-TFT_eSPI tft;
+// TFT_eSPI tft;
 // TFT_eSprite img = TFT_eSprite( &tft );
 
 const uint32_t BUTTON_1_PIN = 35;
@@ -52,7 +52,7 @@ void IRAM_ATTR UpdateScreen( void *param )
         frameStart = millis();
 
         gDisplay->BeginFrame();
-        gDisplay->DrawText( str_sprintf( "CPU:   %4.1f%% - %4.1f%%", TM.GetCPUUsagePercent( 0 ), TM.GetCPUUsagePercent( 1 ) ), 5, 5 );
+        gDisplay->DrawText( str_sprintf( "CPU:   %4.1f%% (%4.1f%% - %4.1f%%)", TM.GetCPUUsagePercent( -1 ), TM.GetCPUUsagePercent( 0 ), TM.GetCPUUsagePercent( 1 ) ), 5, 5 );
         gDisplay->DrawText( str_sprintf( "HEAP:  F: %.1fKB - T: %.1fKB", ESP.getFreeHeap() / 1024.0, ESP.getHeapSize() / 1024.0 ), 5,
                             20 );
         if( ESP.getPsramSize() > 0 )

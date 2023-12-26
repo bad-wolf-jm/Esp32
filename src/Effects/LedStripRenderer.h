@@ -30,7 +30,7 @@ class LedStripRenderer
         return _ledArray;
     }
 
-    inline void SetPixel( int x, CRGB value )
+    inline void DrawPixel( int x, CRGB value )
     {
         if( x < 0 )
             return;
@@ -38,7 +38,12 @@ class LedStripRenderer
         if( x > _ledCount )
             return;
 
-        _ledArray[x] = value;
+        _ledArray[x] += value;
+    }
+
+    inline void DrawPixel( int x, CRGB value, float fraction )
+    {
+        DrawPixel(x, ColorFraction(value, fraction));
     }
 
     inline void SetPixel( float x, CRGB color )
@@ -54,14 +59,29 @@ class LedStripRenderer
         float intensity0 = 1.0f - ( x - (int)x );
         float intensity1 = x - (int)x;
 
-        _ledArray[(int)i] += ColorFraction( color, intensity0 );
-        _ledArray[(int)i + 1] += ColorFraction( color, intensity1 );
+        _ledArray[i] += ColorFraction( color, intensity0 );
+        _ledArray[i + 1] += ColorFraction( color, intensity1 );
     }
 
     inline CRGB ColorFraction( CRGB in, float fraction )
     {
         fraction = std::min( 1.0f, fraction );
         return CRGB( in ).fadeToBlackBy( 255 * ( 1.0f - fraction ) );
+    }
+
+    inline int GetPixelPosition( float pos )
+    {
+        return static_cast<int>( pos * _dpi );
+    }
+
+    inline int GetLengthInPixels( float pos )
+    {
+        return static_cast<int>( pos * _dpi );
+    }
+
+    inline float GetPixelFraction( float pos )
+    {
+        return ( pos - static_cast<int>( pos ) );
     }
 
     inline void DrawLine( float startPosition, float length, CRGB color )
