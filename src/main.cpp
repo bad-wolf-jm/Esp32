@@ -141,23 +141,22 @@ void IRAM_ATTR UpdateLeds( void *param )
         //     gfx.DrawHLine(2 * i + 1, 4, 2, CRGB::Yellow);
         //     gfx.DrawFilledRect( 2 * i + 1, 5, 2, 5, colors[i % 3] );
         // }
-        gfx.Clear();
-        for (int i=0; i < peaks.size(); i++)
-        {
-            peaks[i] = sin(3 * (i + k) * (2 * PI / 48.0)) * 2048 + 2048;
-        }
-        k += 1;
-        // std::fill(peaks.begin(), peaks.end(), 4096);
-        analyzer.SetPeaks(peaks, ts / 1000.0f);
-        analyzer.Render(gfx);
 
-        led_matrix.Clear();
-        led_matrix.SetPixels( gfx.GetPixels() );
-        led_matrix.Present();
+
+        // gfx.Clear();
+        // for (int i=0; i < peaks.size(); i++)
+        //     peaks[i] = sin(3 * (i + k) * (2 * PI / 48.0)) * 2048 + 2048;
+        // k += 1;
+        // // std::fill(peaks.begin(), peaks.end(), 4096);
+        // analyzer.SetPeaks(peaks, ts / 1000.0f);
+        // analyzer.Render(gfx);
+        // led_matrix.Clear();
+        // led_matrix.SetPixels( gfx.GetPixels() );
+        // led_matrix.Present();
 
         led_renderer.Clear();
         laser.Render( led_renderer );
-        // led_strip.Clear();
+        led_strip.Clear();
         led_strip.Blit( led_renderer );
         led_strip.Present();
 
