@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LedStripBase.h"
+#include "Effects/LedStripRenderer.h"
 
 template <uint8_t DATA_PIN, EOrder RGB_ORDER>
 class LedStrip : public LedStripBase<DATA_PIN, RGB_ORDER>
