@@ -15,6 +15,7 @@
 #include "Framebuffer/LedMatrix.h"
 #include "Framebuffer/LedStrip.h"
 #include "TaskManager.h"
+#include "Effects/SpectrumAnalyzer.h"
 
 // #include "entt/entt.hpp"
 
@@ -76,6 +77,7 @@ void IRAM_ATTR UpdateScreen( void *param )
 }
 
 LaserLineEffect laser;
+SpectrumAnalyzer analyzer(16);
 
 void IRAM_ATTR UpdateLeds( void *param )
 {
@@ -85,8 +87,11 @@ void IRAM_ATTR UpdateLeds( void *param )
     long time     = millis();
     long lastShot = millis();
 
-    static int position_x = 0;
-    static int position_y = 0;
+    int position_x = 0;
+    int position_y = 0;
+
+    float k = 1.0;
+    std::vector<double> peaks(16);
 
     for( ;; )
     {
@@ -128,15 +133,23 @@ void IRAM_ATTR UpdateLeds( void *param )
         //     position_y = ( position_y + 1 ) % led_matrix.Height;
         // led_matrix.Present();
 
-        gfx.DrawRect( 0, 0, 48, 16, CRGB::Gray );
-
-        uint16_t start    = 2;
-        CRGB     colors[] = { CRGB::IndianRed, CRGB::GreenYellow, CRGB::BlueViolet };
-        for( int i = 0; i < 23; i++ )
+        // gfx.DrawRect( 0, 0, 48, 16, CRGB::Gray );
+        // uint16_t start    = 2;
+        // CRGB     colors[] = { CRGB::IndianRed, CRGB::GreenYellow, CRGB::BlueViolet };
+        // for( int i = 0; i < 23; i++ )
+        // {
+        //     gfx.DrawHLine(2 * i + 1, 4, 2, CRGB::Yellow);
+        //     gfx.DrawFilledRect( 2 * i + 1, 5, 2, 5, colors[i % 3] );
+        // }
+        gfx.Clear();
+        for (int i=0; i < peaks.size(); i++)
         {
-            gfx.DrawHLine(2 * i + 1, 4, 2, CRGB::Yellow);
-            gfx.DrawFilledRect( 2 * i + 1, 5, 2, 5, colors[i % 3] );
+            peaks[i] = sin(3 * (i + k) * (2 * PI / 48.0)) * 2048 + 2048;
         }
+        k += 1;
+        // std::fill(peaks.begin(), peaks.end(), 4096);
+        analyzer.SetPeaks(peaks, ts / 1000.0f);
+        analyzer.Render(gfx);
 
         led_matrix.Clear();
         led_matrix.SetPixels( gfx.GetPixels() );

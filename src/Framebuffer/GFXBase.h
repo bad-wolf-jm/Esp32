@@ -52,6 +52,11 @@ class GFXBase : public Adafruit_GFX
         SetPixel( y, x, from16Bit( color ) );
     }
 
+    void Clear()
+    {
+        std::fill(_pixels.begin(), _pixels.end(), CRGB::Black);
+    }
+
     inline void SetPixel( uint32_t i, uint32_t j, CRGB value )
     {
         _pixels[GetIndex( i, j )] = value;

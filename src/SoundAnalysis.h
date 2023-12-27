@@ -9,7 +9,7 @@ class SoundAnalyzer
                    i2s_bits_per_sample_t bitsPerSample = I2S_BITS_PER_SAMPLE_16BIT, uint8_t bufferCount = 2, int bufferSize = 512 );
 
   private:
-    int _bufferSize        = 512;
+    int _bufferSize = 512;
     int _sampleRate = 44100;
 
     i2s_port_t            _port              = I2S_NUM_0;
