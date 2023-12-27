@@ -9,11 +9,12 @@
 
 #include "Display/Graphics.h"
 #include "Effects/Glow2D.h"
+#include "Effects/LaserLine.h"
 #include "Effects/LedStripRenderer.h"
+#include "Framebuffer/GFXBase.h"
 #include "Framebuffer/LedMatrix.h"
 #include "Framebuffer/LedStrip.h"
 #include "TaskManager.h"
-#include "Effects/LaserLine.h"
 
 // #include "entt/entt.hpp"
 
@@ -31,9 +32,11 @@ const uint32_t BUTTON_PRESS_THRESHOLD = 30;
 // matrix_t led_matrix(16, 16, DataFlowOrigin::TOP_LEFT, DataFlowDirection::VERTICAL);
 // LedMatrix led_matrix(16, 16, DataFlowOrigin::TOP_RIGHT, DataFlowDirection::HORIZONTAL);
 
-LedStrip<17, GRB> led_strip( 144, false );
-LedStripRenderer  led_renderer( 1.0, 144 );
-LedMatrix<21, GRB> led_matrix(16, 16, 3, 1);
+LedStrip<17, GRB>  led_strip( 144, false );
+LedStripRenderer   led_renderer( 1.0, 144 );
+LedMatrix<21, GRB> led_matrix( 16, 16, 3, 1 );
+GFXBase            gfx( 16, 16, 3, 1 );
+
 Glow2D glow_effect( 256u * 3 );
 
 #define SCREEN_PRIORITY ( tskIDLE_PRIORITY + 3 )
@@ -52,7 +55,9 @@ void IRAM_ATTR UpdateScreen( void *param )
         frameStart = millis();
 
         gDisplay->BeginFrame();
-        gDisplay->DrawText( str_sprintf( "CPU:   %4.1f%% (%4.1f%% - %4.1f%%)", TM.GetCPUUsagePercent( -1 ), TM.GetCPUUsagePercent( 0 ), TM.GetCPUUsagePercent( 1 ) ), 5, 5 );
+        gDisplay->DrawText( str_sprintf( "CPU:   %4.1f%% (%4.1f%% - %4.1f%%)", TM.GetCPUUsagePercent( -1 ), TM.GetCPUUsagePercent( 0 ),
+                                         TM.GetCPUUsagePercent( 1 ) ),
+                            5, 5 );
         gDisplay->DrawText( str_sprintf( "HEAP:  F: %.1fKB - T: %.1fKB", ESP.getFreeHeap() / 1024.0, ESP.getHeapSize() / 1024.0 ), 5,
                             20 );
         if( ESP.getPsramSize() > 0 )
@@ -77,12 +82,11 @@ void IRAM_ATTR UpdateLeds( void *param )
     float lineStart  = 0.0;
     float lineLength = .15;
 
-    long time = millis();
+    long time     = millis();
     long lastShot = millis();
 
     static int position_x = 0;
     static int position_y = 0;
-
 
     for( ;; )
     {
@@ -90,11 +94,11 @@ void IRAM_ATTR UpdateLeds( void *param )
 
         led_renderer.Clear( CRGB::Black );
         long ts = millis() - time;
-        laser.Update(ts / 1000.0f);
+        laser.Update( ts / 1000.0f );
         time = millis();
 
         long timeSinceLastShot = millis() - lastShot;
-        if(timeSinceLastShot > 500)
+        if( timeSinceLastShot > 500 )
         {
             laser.Fire();
             lastShot = millis();
@@ -115,18 +119,35 @@ void IRAM_ATTR UpdateLeds( void *param )
         //     lineStart  = 0.0;
         //     lineLength = .15;
         // }
-        if( ( position_x == 0 ) && ( position_y == 0 ) )
-            led_matrix.Clear();
-        led_matrix.SetPixel( position_y, position_x, CRGB::DarkOrchid );
-        position_x = ( position_x + 1 ) % led_matrix.Width;
-        if( position_x == 0 )
-            position_y = ( position_y + 1 ) % led_matrix.Height;
+
+        // if( ( position_x == 0 ) && ( position_y == 0 ) )
+        //     led_matrix.Clear();
+        // led_matrix.SetPixel( position_y, position_x, CRGB::Red );
+        // position_x = ( position_x + 1 ) % led_matrix.Width;
+        // if( position_x == 0 )
+        //     position_y = ( position_y + 1 ) % led_matrix.Height;
+        // led_matrix.Present();
+
+        gfx.DrawRect( 0, 0, 48, 16, CRGB::Gray );
+
+        uint16_t start    = 2;
+        CRGB     colors[] = { CRGB::IndianRed, CRGB::GreenYellow, CRGB::BlueViolet };
+        for( int i = 0; i < 23; i++ )
+        {
+            gfx.DrawHLine(2 * i + 1, 4, 2, CRGB::Yellow);
+            gfx.DrawFilledRect( 2 * i + 1, 5, 2, 5, colors[i % 3] );
+        }
+
+        led_matrix.Clear();
+        led_matrix.SetPixels( gfx.GetPixels() );
         led_matrix.Present();
-        // led_renderer.Clear();
-        laser.Render(led_renderer);
-        led_strip.Clear();
+
+        led_renderer.Clear();
+        laser.Render( led_renderer );
+        // led_strip.Clear();
         led_strip.Blit( led_renderer );
         led_strip.Present();
+
         long frameDuration = millis() - frameStart;
 
         if( frameDuration < 30 )
