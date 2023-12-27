@@ -32,7 +32,6 @@ class SpectrumAnalyzer
         int bandX       = 0;
 
         static CRGB colors[] = { CRGB::IndianRed, CRGB::GreenYellow, CRGB::BlueViolet };
-        // static CRGB colors[] = { CRGB::DarkGray, CRGB::DarkGray, CRGB::DarkGray };
 
         for( size_t i = 0; i < _amplitudes.size(); i++ )
         {
