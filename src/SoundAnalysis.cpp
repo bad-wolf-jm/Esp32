@@ -56,13 +56,6 @@ SoundAnalyzer::SoundAnalyzer( i2s_port_t port, int samplingFrequency, i2s_channe
     Serial.println( "I2S driver installed." );
 }
 
-template <typename T>
-inline void FillVector( vector_t<double> &vector, T *values, size_t count )
-{
-    for( size_t i = 0; i < count; i++ )
-        vector[i] = values[i];
-}
-
 void SoundAnalyzer::FillBuffer()
 {
     size_t bytesRead = 0;
