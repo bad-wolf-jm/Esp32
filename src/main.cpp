@@ -16,6 +16,7 @@
 #include "Framebuffer/LedStrip.h"
 #include "TaskManager.h"
 #include "Effects/SpectrumAnalyzer.h"
+#include "Effects/Fire.h"
 
 // #include "entt/entt.hpp"
 
@@ -39,6 +40,7 @@ LedMatrix<21, GRB> led_matrix( 16, 16, 3, 1 );
 GFXBase            gfx( 16, 16, 3, 1 );
 
 Glow2D glow_effect( 256u * 3 );
+FireEffect fire("Fire", 144, 3 );
 
 #define SCREEN_PRIORITY ( tskIDLE_PRIORITY + 3 )
 #define SCREEN_CORE     1
@@ -109,6 +111,8 @@ void IRAM_ATTR UpdateLeds( void *param )
             lastShot = millis();
         }
 
+        fire.DrawFire();
+        
         // led_renderer.DrawLine( lineStart, lineLength, CRGB::Red );
         // led_renderer.SetPixel( lineStart, CRGB::Red );
         // lineLength += 0.01;
@@ -143,20 +147,22 @@ void IRAM_ATTR UpdateLeds( void *param )
         // }
 
 
-        // gfx.Clear();
-        // for (int i=0; i < peaks.size(); i++)
-        //     peaks[i] = sin(3 * (i + k) * (2 * PI / 48.0)) * 2048 + 2048;
-        // k += 1;
+        gfx.Clear();
+        for (int i=0; i < peaks.size(); i++)
+            peaks[i] = sin(3 * (i + k) * (2 * PI / 48.0)) * 2048 + 2048;
+        k += 1;
         // // std::fill(peaks.begin(), peaks.end(), 4096);
-        // analyzer.SetPeaks(peaks, ts / 1000.0f);
-        // analyzer.Render(gfx);
+        analyzer.SetPeaks(peaks, ts / 1000.0f);
+        analyzer.Render(gfx);
         // led_matrix.Clear();
-        // led_matrix.SetPixels( gfx.GetPixels() );
-        // led_matrix.Present();
+        led_matrix.SetPixels( gfx.GetPixels() );
+        led_matrix.Present();
 
         led_renderer.Clear();
-        laser.Render( led_renderer );
+        // laser.Render( led_renderer );
+        fire.Render(led_renderer);
         led_strip.Clear();
+        // led_strip.SetPixel(0, CRGB::Red);
         led_strip.Blit( led_renderer );
         led_strip.Present();
 
@@ -164,6 +170,8 @@ void IRAM_ATTR UpdateLeds( void *param )
 
         if( frameDuration < 30 )
             delay( 30 - frameDuration );
+
+        
     }
 }
 

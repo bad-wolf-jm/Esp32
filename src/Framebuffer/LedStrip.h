@@ -23,6 +23,11 @@ class LedStrip : public LedStripBase<DATA_PIN, RGB_ORDER>
             _ledArray[GetIndex( i )] = pixelValues[i];
     }
 
+    inline void SetPixel( int i, CRGB const &pixelValues )
+    {
+        _ledArray[GetIndex( i )] = pixelValues;
+    }
+
     inline void Blit( LedStripRenderer const &renderer )
     {
         auto const &renderedPixels = renderer.GetPixels();
@@ -32,7 +37,7 @@ class LedStrip : public LedStripBase<DATA_PIN, RGB_ORDER>
     }
 
   protected:
-    uint32_t _isReversed = 0;
+    bool _isReversed = false;
 
   private:
     inline int GetIndex( int i )

@@ -58,7 +58,7 @@ class LaserLineEffect : public LedStripEffectBase
 
     void Fire()
     {
-        static CRGB colors[] = { CRGB::IndianRed, CRGB::Orange, CRGB::Green, CRGB::Blue };
+        static CRGB colors[] = { CRGB::Green, CRGB::Green, CRGB::Green, CRGB::Blue };
         float       value    = random16() / static_cast<float>( UINT16_MAX );
         float       speed    = random16() / static_cast<float>( UINT16_MAX );
         speed                = speed + 1.0f;

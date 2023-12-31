@@ -35,7 +35,7 @@ class LedStripRenderer
         if( x < 0 )
             return;
 
-        if( x > _ledCount )
+        if( x >= _ledCount )
             return;
 
         _ledArray[x] += value;
@@ -107,9 +107,6 @@ class LedStripRenderer
         if( remaining > 0.0 )
             _ledArray[positionInStrip] += ColorFraction( color, remaining );
     }
-
-  protected:
-    uint32_t _isReversed = 0;
 
   private:
     float             _length;
