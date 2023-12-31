@@ -43,10 +43,10 @@ SoundAnalyzer::SoundAnalyzer( i2s_port_t port, int samplingFrequency, i2s_channe
         break;
     }
 
-    _sampleBuffer = std::vector<uint8_t>( _bufferSizeInBytes );
+    _sampleBuffer = vector_t<uint8_t>( _bufferSizeInBytes );
 
-    _real      = std::vector<double>( _bufferSize );
-    _imaginary = std::vector<double>( _bufferSize );
+    _real      = vector_t<double>( _bufferSize );
+    _imaginary = vector_t<double>( _bufferSize );
 
     ESP_ERROR_CHECK( adc1_config_width( _adcBitsWidth ) );
     ESP_ERROR_CHECK( adc1_config_channel_atten( _adcChannel, _adcAttenuation ) );
@@ -57,7 +57,7 @@ SoundAnalyzer::SoundAnalyzer( i2s_port_t port, int samplingFrequency, i2s_channe
 }
 
 template<typename T>
-inline void FillVector( std::vector<double>& vector, T* values, size_t count)
+inline void FillVector( vector_t<double>& vector, T* values, size_t count)
 {
     for( size_t i = 0; i < count; i++ )
         vector[i] = values[i];

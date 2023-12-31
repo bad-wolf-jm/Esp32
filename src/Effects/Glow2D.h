@@ -1,6 +1,7 @@
 #pragma once
 #include "FastLED.h"
-#include <vector>
+
+#include "Core/Vector.h"
 
 class Glow2D
 {
@@ -9,13 +10,13 @@ class Glow2D
 
     void Update();
 
-    std::vector<CRGB> &GetColors()
+    vector_t<CRGB> &GetColors()
     {
         return _colors;
     };
 
   private:
     uint32_t             _length = 0;
-    std::vector<uint8_t> _heat;
-    std::vector<CRGB>    _colors;
+    vector_t<uint8_t> _heat;
+    vector_t<CRGB>    _colors;
 };

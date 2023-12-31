@@ -66,5 +66,5 @@ class LaserLineEffect : public LedStripEffectBase
     }
 
   private:
-    std::vector<LaserShot> _shots;
+    vector_t<LaserShot> _shots;
 };

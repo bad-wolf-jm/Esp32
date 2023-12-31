@@ -12,11 +12,11 @@
 #include "Effects/LaserLine.h"
 #include "Effects/LedStripRenderer.h"
 #include "Framebuffer/GFXBase.h"
-#include "Framebuffer/LedMatrix.h"
-#include "Framebuffer/LedStrip.h"
-#include "TaskManager.h"
-#include "Effects/SpectrumAnalyzer.h"
+// #include "Framebuffer/LedMatrix.h"
+// #include "Framebuffer/LedStrip.h"
 #include "Effects/Fire.h"
+#include "Effects/SpectrumAnalyzer.h"
+#include "TaskManager.h"
 
 // #include "entt/entt.hpp"
 
@@ -34,14 +34,14 @@ const uint32_t BUTTON_PRESS_THRESHOLD = 30;
 // matrix_t led_matrix(16, 16, DataFlowOrigin::TOP_LEFT, DataFlowDirection::VERTICAL);
 // LedMatrix led_matrix(16, 16, DataFlowOrigin::TOP_RIGHT, DataFlowDirection::HORIZONTAL);
 
-LedStrip<17, GRB>  led_strip( 144, false );
-LedStripRenderer   led_renderer( 1.0, 144 );
-LedMatrix<21, GRB> led_matrix( 16, 16, 3, 1 );
-GFXBase            gfx( 16, 16, 3, 1 );
+// LedStrip<17, GRB>  led_strip( 144, false );
+// LedMatrix<21, GRB> led_matrix( 16, 16, 3, 1 );
+GFXBase          gfx( 16, 16, 3, 1 );
+LedStripRenderer led_renderer( 1.0, 144 );
 
-Glow2D glow_effect( 256u * 3 );
-FireEffect fire("Fire", 144, 3 );
-SmoothFireEffect smooth_fire(144);
+Glow2D           glow_effect( 256u * 3 );
+FireEffect       fire( "Fire", 144, 3 );
+SmoothFireEffect smooth_fire( 144 );
 
 #define SCREEN_PRIORITY ( tskIDLE_PRIORITY + 3 )
 #define SCREEN_CORE     1
@@ -79,8 +79,8 @@ void IRAM_ATTR UpdateScreen( void *param )
     }
 }
 
-LaserLineEffect laser;
-SpectrumAnalyzer analyzer(16);
+LaserLineEffect  laser;
+SpectrumAnalyzer analyzer( 16 );
 
 void IRAM_ATTR UpdateLeds( void *param )
 {
@@ -93,8 +93,8 @@ void IRAM_ATTR UpdateLeds( void *param )
     int position_x = 0;
     int position_y = 0;
 
-    float k = 1.0;
-    std::vector<double> peaks(16);
+    float            k = 1.0;
+    vector_t<double> peaks( 16 );
 
     for( ;; )
     {
@@ -113,8 +113,8 @@ void IRAM_ATTR UpdateLeds( void *param )
         }
 
         fire.DrawFire();
-        smooth_fire.Update(ts / 1000.0f);
-        
+        smooth_fire.Update( ts / 1000.0f );
+
         // led_renderer.DrawLine( lineStart, lineLength, CRGB::Red );
         // led_renderer.SetPixel( lineStart, CRGB::Red );
         // lineLength += 0.01;
@@ -148,32 +148,31 @@ void IRAM_ATTR UpdateLeds( void *param )
         //     gfx.DrawFilledRect( 2 * i + 1, 5, 2, 5, colors[i % 3] );
         // }
 
-
         gfx.Clear();
-        for (int i=0; i < peaks.size(); i++)
-            peaks[i] = sin(3 * (i + k) * (2 * PI / 48.0)) * 2048 + 2048;
+        for( int i = 0; i < peaks.size(); i++ )
+            peaks[i] = sin( 3 * ( i + k ) * ( 2 * PI / 48.0 ) ) * 2048 + 2048;
         k += 1;
         // // std::fill(peaks.begin(), peaks.end(), 4096);
-        analyzer.SetPeaks(peaks, ts / 1000.0f);
-        analyzer.Render(gfx);
+        FastLED.clear();
+        analyzer.SetPeaks( peaks, ts / 1000.0f );
+        analyzer.Render( gfx );
         // led_matrix.Clear();
-        led_matrix.SetPixels( gfx.GetPixels() );
-        led_matrix.Present();
+        // led_matrix.SetPixels( gfx.GetPixels() );
+        // led_matrix.Present();
 
         led_renderer.Clear();
-        // laser.Render( led_renderer );
-        smooth_fire.Render(led_renderer);
-        led_strip.Clear();
+        laser.Render( led_renderer );
+        // smooth_fire.Render( led_renderer );
+        // led_strip.Clear();
+        FastLED.show();
         // led_strip.SetPixel(0, CRGB::Red);
-        led_strip.Blit( led_renderer );
-        led_strip.Present();
+        // led_strip.Blit( led_renderer );
+        // led_strip.Present();
 
         long frameDuration = millis() - frameStart;
 
         if( frameDuration < 30 )
             delay( 30 - frameDuration );
-
-        
     }
 }
 
@@ -189,6 +188,14 @@ void setup()
     config.Height   = (uint32_t)TFT_HEIGHT;
     config.Rotation = (uint8_t)1;
     gDisplay        = std::make_unique<Graphics>( config );
+
+    pinMode( 17, OUTPUT );
+    FastLED.addLeds<WS2812, 17, GRB>( led_renderer.GetPixels().data(), led_renderer.GetPixels().size() );
+
+    pinMode( 21, OUTPUT );
+    FastLED.addLeds<WS2812, 21, GRB>( gfx.GetPixels().data(), gfx.GetPixels().size() );
+
+    FastLED.setBrightness( 5 );
 
     pinMode( BUTTON_1_PIN, INPUT_PULLUP );
     pinMode( BUTTON_2_PIN, INPUT_PULLUP );

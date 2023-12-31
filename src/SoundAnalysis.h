@@ -1,6 +1,6 @@
 #pragma once
 #include <driver/i2s.h>
-#include <vector>
+#include "Core/Vector.h"
 
 class SoundAnalyzer
 {
@@ -22,11 +22,11 @@ class SoundAnalyzer
     uint8_t               _bufferCount       = 2;
     size_t                _bufferSizeInBytes = 0;
 
-    std::vector<uint8_t> _sampleBuffer;
+    vector_t<uint8_t> _sampleBuffer;
 
-    std::vector<double> _peaks;
-    std::vector<double> _real;
-    std::vector<double> _imaginary;
+    vector_t<double> _peaks;
+    vector_t<double> _real;
+    vector_t<double> _imaginary;
 
   private:
     void FillBuffer();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Vector.h"
 #include <Adafruit_GFX.h>
 #include <FastLED.h>
 
@@ -22,7 +23,7 @@ class GFXBase : public Adafruit_GFX
         , _panelWidth{ panelWidth }
         , _panelHeight{ panelHeight }
         , _numPixelsPerGridRow{ Width * panelHeight }
-        , _pixels{ std::vector<CRGB>( Width * Height ) }
+        , _pixels{ vector_t<CRGB>( Width * Height ) }
     {
     }
 
@@ -42,9 +43,9 @@ class GFXBase : public Adafruit_GFX
         return ( ( r / 8 ) << 11 ) | ( ( g / 4 ) << 5 ) | ( b / 8 );
     }
 
-    static uint16_t to16bit(const CRGB rgb) // Convert CRGB -> 16 bit 5:6:5
+    static uint16_t to16bit( const CRGB rgb ) // Convert CRGB -> 16 bit 5:6:5
     {
-        return ((rgb.r / 8) << 11) | ((rgb.g / 4) << 5) | (rgb.b / 8);
+        return ( ( rgb.r / 8 ) << 11 ) | ( ( rgb.g / 4 ) << 5 ) | ( rgb.b / 8 );
     }
 
     virtual void drawPixel( int16_t x, int16_t y, uint16_t color )
@@ -52,9 +53,31 @@ class GFXBase : public Adafruit_GFX
         SetPixel( y, x, from16Bit( color ) );
     }
 
+    inline void DrawPixel( int x, CRGB value )
+    {
+        if( x < 0 )
+            return;
+
+        if( x >= _pixels.size() )
+            return;
+
+        _pixels[x] += value;
+    }
+
+    inline CRGB ColorFraction( CRGB in, float fraction )
+    {
+        fraction = std::min( 1.0f, fraction );
+        return CRGB( in ).fadeToBlackBy( 255 * ( 1.0f - fraction ) );
+    }
+
+    inline void DrawPixel( int x, CRGB value, float fraction )
+    {
+        DrawPixel( x, ColorFraction( value, fraction ) );
+    }
+
     void Clear()
     {
-        std::fill(_pixels.begin(), _pixels.end(), CRGB::Black);
+        std::fill( _pixels.begin(), _pixels.end(), CRGB::Black );
     }
 
     inline void SetPixel( uint32_t i, uint32_t j, CRGB value )
@@ -62,35 +85,34 @@ class GFXBase : public Adafruit_GFX
         _pixels[GetIndex( i, j )] = value;
     }
 
-    void SetPixels( std::vector<CRGB> const &pixelValues )
+    void SetPixels( vector_t<CRGB> const &pixelValues )
     {
         std::copy( pixelValues.begin(), pixelValues.end(), _pixels.begin() );
     }
 
-    std::vector<CRGB> &GetPixels()
+    vector_t<CRGB> &GetPixels()
     {
         return _pixels;
     }
 
-    void DrawHLine(int x, int y, int w, CRGB color)
+    void DrawHLine( int x, int y, int w, CRGB color )
     {
-        drawFastHLine(x, y, w, to16bit(color));
+        drawFastHLine( x, y, w, to16bit( color ) );
     }
 
-    void DrawVLine(int x, int y, int h, CRGB color)
+    void DrawVLine( int x, int y, int h, CRGB color )
     {
-        drawFastVLine(x, y, h, to16bit(color));
+        drawFastVLine( x, y, h, to16bit( color ) );
     }
 
-
-    void DrawRect(int x, int y, int w, int h, CRGB color)
+    void DrawRect( int x, int y, int w, int h, CRGB color )
     {
-        drawRect(x, y, w, h, to16bit(color));
+        drawRect( x, y, w, h, to16bit( color ) );
     }
 
-    void DrawFilledRect(int x, int y, int w, int h, CRGB color)
+    void DrawFilledRect( int x, int y, int w, int h, CRGB color )
     {
-        fillRect(x, y, w, h, to16bit(color));
+        fillRect( x, y, w, h, to16bit( color ) );
     }
 
   private:
@@ -107,5 +129,5 @@ class GFXBase : public Adafruit_GFX
             return _numPixelsPerGridRow * gridRow + ( j * _panelHeight + i );
     }
 
-    std::vector<CRGB> _pixels;
+    vector_t<CRGB> _pixels;
 };

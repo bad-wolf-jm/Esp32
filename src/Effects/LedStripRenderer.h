@@ -2,7 +2,7 @@
 
 // #include "LedStripBase.h"
 #include <FastLED.h>
-#include <vector>
+#include "Core/Vector.h"
 
 class LedStripRenderer
 {
@@ -25,7 +25,7 @@ class LedStripRenderer
         std::fill( _ledArray.begin(), _ledArray.end(), color );
     }
 
-    inline std::vector<CRGB> const &GetPixels() const
+    inline std::vector<CRGB> &GetPixels()
     {
         return _ledArray;
     }

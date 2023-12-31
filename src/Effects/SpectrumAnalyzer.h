@@ -1,19 +1,19 @@
 #pragma once
 
 #include "Framebuffer/GFXBase.h"
-#include <vector>
+#include "Core/Vector.h"
 
 class SpectrumAnalyzer
 {
   public:
     SpectrumAnalyzer( int numBands )
         : _numBands( numBands )
-        , _amplitudes{ std::vector<double>( _numBands ) }
-        , _peaks{ std::vector<double>( _numBands ) }
+        , _amplitudes{ vector_t<double>( _numBands ) }
+        , _peaks{ vector_t<double>( _numBands ) }
     {
     }
 
-    void SetPeaks( std::vector<double> const &peaks, float ts )
+    void SetPeaks( vector_t<double> const &peaks, float ts )
     {
         std::copy( peaks.begin(), peaks.end(), _amplitudes.begin() );
         for( int i = 0; i < _amplitudes.size(); i++ )
@@ -48,6 +48,6 @@ class SpectrumAnalyzer
 
   private:
     int                 _numBands;
-    std::vector<double> _amplitudes;
-    std::vector<double> _peaks;
+    vector_t<double> _amplitudes;
+    vector_t<double> _peaks;
 };

@@ -2,7 +2,9 @@
 #include "FastLED.h"
 #include "LedStripRenderer.h"
 #include <random>
-#include <vector>
+
+#include "Core/Vector.h"
+// #include <vector>
 // #include "globals.h"
 // #include "musiceffect.h"
 // #include "soundanalyzer.h"
@@ -25,7 +27,7 @@ class FireEffect // : public LEDStripEffect
     bool bReversed;   // If reversed we draw from 0 outwards
     bool bMirrored;   // If mirrored we split and duplicate the drawing
 
-    std::vector<uint8_t> heat;
+    vector_t<uint8_t> heat;
 
     // When diffusing the fire upwards, these control how much to blend in from the cells below (ie: downward neighbors)
     // You can tune these coefficients to control how quickly and smoothly the fire spreads
@@ -60,7 +62,7 @@ class FireEffect // : public LEDStripEffect
         if( bMirrored )
             LEDCount = LEDCount / 2;
 
-        heat = std::vector<uint8_t>( CellCount() );
+        heat = vector_t<uint8_t>( CellCount() );
         // construct();
     }
 
@@ -418,7 +420,7 @@ class SmoothFireEffect
     bool  _Mirrored;
     int   _cLEDs;
 
-    std::vector<float> _Temperatures;
+    vector_t<float> _Temperatures;
 
   public:
     // Parameter:   Cooling   Sparks    driftPasses  drift sparkHeight   Turbo
@@ -440,7 +442,7 @@ class SmoothFireEffect
         , _Mirrored( mirrored )
         , _cLEDs{ ledCount }
     {
-        _Temperatures = std::vector<float>( _cLEDs );
+        _Temperatures = vector_t<float>( _cLEDs );
     }
 
     // SmoothFireEffect( const JsonObjectConst &jsonObject )
@@ -477,7 +479,7 @@ class SmoothFireEffect
     //     return jsonObject.set( jsonDoc.as<JsonObjectConst>() );
     // }
 
-    // bool Init( std::vector<std::shared_ptr<GFXBase>> &gfx ) override
+    // bool Init( vector_t<std::shared_ptr<GFXBase>> &gfx ) override
     // {
     //     // LEDStripEffect::Init( gfx );
     //     _Temperatures = (float *)PreferPSRAMAlloc( sizeof( float ) * _cLEDs );

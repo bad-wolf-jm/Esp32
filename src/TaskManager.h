@@ -244,7 +244,7 @@ class TaskManager
 //     // TaskHandle_t _taskColorData     = nullptr;
 //     // TaskHandle_t _taskJSONWriter    = nullptr;
 
-//     // std::vector<TaskHandle_t> _vEffectTasks;
+//     // vector_t<TaskHandle_t> _vEffectTasks;
 
 //     // static void EffectTaskEntry(void *pVoid)
 //     // {

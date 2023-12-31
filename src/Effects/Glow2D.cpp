@@ -2,8 +2,8 @@
 
 Glow2D::Glow2D(uint32_t length)
     : _length{length}
-    , _heat{std::vector<uint8_t>(_length)}
-    , _colors{std::vector<CRGB>(_length)}
+    , _heat{vector_t<uint8_t>(_length)}
+    , _colors{vector_t<CRGB>(_length)}
 
 {
 
