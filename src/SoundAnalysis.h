@@ -1,6 +1,6 @@
 #pragma once
-#include <driver/i2s.h>
 #include "Core/Vector.h"
+#include <driver/i2s.h>
 
 class SoundAnalyzer
 {

@@ -1,13 +1,12 @@
 #pragma once
 
-// #include "LedStripBase.h"
-#include <FastLED.h>
 #include "Core/Vector.h"
+#include <FastLED.h>
 
 class LedStripRenderer
 {
   public:
-    LedStripRenderer( float length, int dpi )
+    LedStripRenderer( float length = 1, int dpi = 1 )
         : _length{ length }
         , _dpi{ dpi }
         , _ledCount{ (uint32_t)( _length * _dpi ) }
@@ -43,7 +42,7 @@ class LedStripRenderer
 
     inline void DrawPixel( int x, CRGB value, float fraction )
     {
-        DrawPixel(x, ColorFraction(value, fraction));
+        DrawPixel( x, ColorFraction( value, fraction ) );
     }
 
     inline void SetPixel( float x, CRGB color )

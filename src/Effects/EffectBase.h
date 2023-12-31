@@ -5,6 +5,6 @@
 class LedStripEffectBase
 {
   public:
-    virtual void Update( float ts ) = 0;
+    virtual void Update( float ts )                   = 0;
     virtual void Render( LedStripRenderer &renderer ) = 0;
 };

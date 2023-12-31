@@ -56,8 +56,8 @@ SoundAnalyzer::SoundAnalyzer( i2s_port_t port, int samplingFrequency, i2s_channe
     Serial.println( "I2S driver installed." );
 }
 
-template<typename T>
-inline void FillVector( vector_t<double>& vector, T* values, size_t count)
+template <typename T>
+inline void FillVector( vector_t<double> &vector, T *values, size_t count )
 {
     for( size_t i = 0; i < count; i++ )
         vector[i] = values[i];
@@ -78,22 +78,22 @@ void SoundAnalyzer::FillBuffer()
     }
 
     // BUG: _take sample type info account
-    std::fill(_imaginary.begin(), _imaginary.end(), 0.0);
-    switch(_bitsPerSample)
+    std::fill( _imaginary.begin(), _imaginary.end(), 0.0 );
+    switch( _bitsPerSample )
     {
     case I2S_BITS_PER_SAMPLE_8BIT:
-        FillVector(_real, (uint8_t*)_sampleBuffer.data(), _bufferSize);
+        FillVector( _real, (uint8_t *)_sampleBuffer.data(), _bufferSize );
         break;
     case I2S_BITS_PER_SAMPLE_16BIT:
-        FillVector(_real, (uint16_t*)_sampleBuffer.data(), _bufferSize);
+        FillVector( _real, (uint16_t *)_sampleBuffer.data(), _bufferSize );
         break;
     case I2S_BITS_PER_SAMPLE_24BIT:
         // THIS WILL NOT WORK, do template specialization and conversion!!!!
-        FillVector(_real, (uint16_t*)_sampleBuffer.data(), _bufferSize);
+        FillVector( _real, (uint16_t *)_sampleBuffer.data(), _bufferSize );
         break;
     case I2S_BITS_PER_SAMPLE_32BIT:
     default:
-        FillVector(_real, (uint32_t*)_sampleBuffer.data(), _bufferSize);
+        FillVector( _real, (uint32_t *)_sampleBuffer.data(), _bufferSize );
         break;
     }
 

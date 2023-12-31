@@ -41,7 +41,10 @@ LedStripRenderer led_renderer( 1.0, 144 );
 
 Glow2D           glow_effect( 256u * 3 );
 FireEffect       fire( "Fire", 144, 3 );
-SmoothFireEffect smooth_fire( 144 );
+SmoothFireEffect smooth_fire( 48 );
+
+SmoothFireEffect smooth_fire_m[16];
+LedStripRenderer led_renderer_m[16];
 
 #define SCREEN_PRIORITY ( tskIDLE_PRIORITY + 3 )
 #define SCREEN_CORE     1
@@ -115,6 +118,9 @@ void IRAM_ATTR UpdateLeds( void *param )
         fire.DrawFire();
         smooth_fire.Update( ts / 1000.0f );
 
+        for( int i = 0; i < 16; i++ )
+            smooth_fire_m[i].Update( ts / 1000.0f );
+
         // led_renderer.DrawLine( lineStart, lineLength, CRGB::Red );
         // led_renderer.SetPixel( lineStart, CRGB::Red );
         // lineLength += 0.01;
@@ -154,15 +160,23 @@ void IRAM_ATTR UpdateLeds( void *param )
         k += 1;
         // // std::fill(peaks.begin(), peaks.end(), 4096);
         FastLED.clear();
-        analyzer.SetPeaks( peaks, ts / 1000.0f );
-        analyzer.Render( gfx );
+        // analyzer.SetPeaks( peaks, ts / 1000.0f );
+        // analyzer.Render( gfx );
         // led_matrix.Clear();
         // led_matrix.SetPixels( gfx.GetPixels() );
         // led_matrix.Present();
 
         led_renderer.Clear();
-        laser.Render( led_renderer );
-        // smooth_fire.Render( led_renderer );
+        // laser.Render( led_renderer );
+        smooth_fire.Render( led_renderer );
+
+        for( int i = 0; i < 16; i++ )
+        {
+            led_renderer_m[i].Clear();
+            smooth_fire_m[i].Render( led_renderer_m[i] );
+            gfx.DrawHStrip( led_renderer_m[i], i );
+        }
+
         // led_strip.Clear();
         FastLED.show();
         // led_strip.SetPixel(0, CRGB::Red);
@@ -188,6 +202,12 @@ void setup()
     config.Height   = (uint32_t)TFT_HEIGHT;
     config.Rotation = (uint8_t)1;
     gDisplay        = std::make_unique<Graphics>( config );
+
+    for( int i = 0; i < 16; i++ )
+    {
+        smooth_fire_m[i]  = SmoothFireEffect( 48 );
+        led_renderer_m[i] = LedStripRenderer( 1.0, 144 );
+    }
 
     pinMode( 17, OUTPUT );
     FastLED.addLeds<WS2812, 17, GRB>( led_renderer.GetPixels().data(), led_renderer.GetPixels().size() );

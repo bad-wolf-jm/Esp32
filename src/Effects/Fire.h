@@ -428,7 +428,7 @@ class SmoothFireEffect
     // Full Red:      0.75f        8         1        128      16          F
     // Good Video:    1.20f       64         1        128      12          F
 
-    SmoothFireEffect( int ledCount = 1, bool reversed = true, float cooling = 0.75f, int sparks = 16, int driftPasses = 1,
+    SmoothFireEffect( int ledCount = 1, bool reversed = true, float cooling = 1.75f, int sparks = 16, int driftPasses = 1,
                       float drift = 64, int sparkHeight = 12, bool turbo = false, bool mirrored = false )
 
         // : LEDStripEffect( EFFECT_STRIP_SMOOTH_FIRE, "Fire Sound Effect v2" )
@@ -536,11 +536,12 @@ class SmoothFireEffect
         {
             for( int k = _cLEDs - 1; k >= 3; k-- )
             {
-                float amount = std::min(0.85f, _Drift * deltaTime);//0.2f; //+ g_Analyzer._VURatio; // MIN(0.85f, _Drift * deltaTime);
-                float c0     = 1.0f - amount;
-                float c1     = amount * 0.33f;
-                float c2     = c1;
-                float c3     = c1;
+                float amount =
+                    std::min( 0.85f, _Drift * deltaTime ); // 0.2f; //+ g_Analyzer._VURatio; // MIN(0.85f, _Drift * deltaTime);
+                float c0 = 1.0f - amount;
+                float c1 = amount * 0.33f;
+                float c2 = c1;
+                float c3 = c1;
 
                 _Temperatures[k] =
                     _Temperatures[k] * c0 + _Temperatures[k - 1] * c1 + _Temperatures[k - 2] * c2 + _Temperatures[k - 3] * c3;

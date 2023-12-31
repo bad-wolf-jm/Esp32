@@ -3,6 +3,7 @@
 #include "Core/Vector.h"
 #include <Adafruit_GFX.h>
 #include <FastLED.h>
+#include "Effects/LedStripRenderer.h"
 
 class GFXBase : public Adafruit_GFX
 {
@@ -113,6 +114,24 @@ class GFXBase : public Adafruit_GFX
     void DrawFilledRect( int x, int y, int w, int h, CRGB color )
     {
         fillRect( x, y, w, h, to16bit( color ) );
+    }
+
+    void DrawVStrip( LedStripRenderer &vStrip, int column )
+    {
+        auto &pixels = vStrip.GetPixels();
+        int   length = std::min( pixels.size(), (size_t)Height );
+
+        for( int i = 0; i < length; i++ )
+            SetPixel( i, column, pixels[i] );
+    }
+
+    void DrawHStrip( LedStripRenderer &vStrip, int row )
+    {
+        auto &pixels = vStrip.GetPixels();
+        int   length = std::min( pixels.size(), (size_t)Width );
+        
+        for( int i = 0; i < length; i++ )
+            SetPixel( row, i, pixels[i] );
     }
 
   private:
