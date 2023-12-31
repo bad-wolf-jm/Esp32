@@ -41,6 +41,7 @@ GFXBase            gfx( 16, 16, 3, 1 );
 
 Glow2D glow_effect( 256u * 3 );
 FireEffect fire("Fire", 144, 3 );
+SmoothFireEffect smooth_fire(144);
 
 #define SCREEN_PRIORITY ( tskIDLE_PRIORITY + 3 )
 #define SCREEN_CORE     1
@@ -112,6 +113,7 @@ void IRAM_ATTR UpdateLeds( void *param )
         }
 
         fire.DrawFire();
+        smooth_fire.Update(ts / 1000.0f);
         
         // led_renderer.DrawLine( lineStart, lineLength, CRGB::Red );
         // led_renderer.SetPixel( lineStart, CRGB::Red );
@@ -160,7 +162,7 @@ void IRAM_ATTR UpdateLeds( void *param )
 
         led_renderer.Clear();
         // laser.Render( led_renderer );
-        fire.Render(led_renderer);
+        smooth_fire.Render(led_renderer);
         led_strip.Clear();
         // led_strip.SetPixel(0, CRGB::Red);
         led_strip.Blit( led_renderer );

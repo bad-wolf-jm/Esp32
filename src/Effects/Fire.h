@@ -1,6 +1,7 @@
 #pragma once
 #include "FastLED.h"
 #include "LedStripRenderer.h"
+#include <random>
 #include <vector>
 // #include "globals.h"
 // #include "musiceffect.h"
@@ -119,7 +120,7 @@ class FireEffect // : public LEDStripEffect
         {
             if( random( 255 ) < Sparking )
             {
-                int y   = random( SparkHeight * CellsPerLED );
+                int y = random( SparkHeight * CellsPerLED );
                 heat[y] += random( 200, 255 ); // Can roll over which actually looks good!
             }
         }
@@ -131,28 +132,27 @@ class FireEffect // : public LEDStripEffect
 
         // EVERY_N_MILLISECONDS( 50 )
         // {
-            for( int i = 0; i < CellCount(); i++ )
-            {
-                int coolingAmount = random( 0, Cooling );
-                heat[i]           = ::max( 0, heat[i] - coolingAmount );
-            }
+        for( int i = 0; i < CellCount(); i++ )
+        {
+            int coolingAmount = random( 0, Cooling );
+            heat[i]           = ::max( 0, heat[i] - coolingAmount );
+        }
         // }
 
         // EVERY_N_MILLISECONDS( 20 )
         // {
-            // Next drift heat up and diffuse it a little bit
-            for( int i = 3; i < CellCount(); i++ )
-                heat[i] =
-                    std::min( 255, 
-                        ( heat[i] * BlendSelf + heat[( i - 1 )] * BlendNeighbor1 + heat[( i - 2 )] * BlendNeighbor2 + heat[( i - 3 )] * BlendNeighbor3 ) 
-                        / BlendTotal );
+        // Next drift heat up and diffuse it a little bit
+        for( int i = 3; i < CellCount(); i++ )
+            heat[i] = std::min( 255, ( heat[i] * BlendSelf + heat[( i - 1 )] * BlendNeighbor1 + heat[( i - 2 )] * BlendNeighbor2 +
+                                       heat[( i - 3 )] * BlendNeighbor3 ) /
+                                         BlendTotal );
         // }
 
         // Randomly ignite new sparks down in the flame kernel
 
         // EVERY_N_MILLISECONDS( 20 )
         // {
-            GenerateSparks( 5.0 );
+        GenerateSparks( 5.0 );
         // }
     }
 
@@ -405,154 +405,210 @@ class FireEffect // : public LEDStripEffect
 //     }
 // };
 
-// class SmoothFireEffect : public LEDStripEffect
-// {
-//   private:
-//     bool  _Reversed;
-//     float _Cooling;
-//     int   _Sparks;
-//     float _Drift;
-//     int   _DriftPasses;
-//     int   _SparkHeight;
-//     bool  _Turbo;
-//     bool  _Mirrored;
+class SmoothFireEffect
+{
+  private:
+    bool  _Reversed;
+    float _Cooling;
+    int   _Sparks;
+    float _Drift;
+    int   _DriftPasses;
+    int   _SparkHeight;
+    bool  _Turbo;
+    bool  _Mirrored;
+    int   _cLEDs;
 
-//     float *_Temperatures = nullptr;
+    std::vector<float> _Temperatures;
 
-//   public:
-//     // Parameter:   Cooling   Sparks    driftPasses  drift sparkHeight   Turbo
-//     // Calm Fire:     0.75f        2         1         64       8          F
-//     // Full Red:      0.75f        8         1        128      16          F
-//     // Good Video:    1.20f       64         1        128      12          F
+  public:
+    // Parameter:   Cooling   Sparks    driftPasses  drift sparkHeight   Turbo
+    // Calm Fire:     0.75f        2         1         64       8          F
+    // Full Red:      0.75f        8         1        128      16          F
+    // Good Video:    1.20f       64         1        128      12          F
 
-//     SmoothFireEffect( bool reversed = true, float cooling = 1.2f, int sparks = 16, int driftPasses = 1, float drift = 48,
-//                       int sparkHeight = 12, bool turbo = false, bool mirrored = false )
+    SmoothFireEffect( int ledCount = 1, bool reversed = true, float cooling = 0.75f, int sparks = 16, int driftPasses = 1,
+                      float drift = 64, int sparkHeight = 12, bool turbo = false, bool mirrored = false )
 
-//         : LEDStripEffect( EFFECT_STRIP_SMOOTH_FIRE, "Fire Sound Effect v2" )
-//         , _Reversed( reversed )
-//         , _Cooling( cooling )
-//         , _Sparks( sparks )
-//         , _Drift( drift )
-//         , _DriftPasses( driftPasses )
-//         , _SparkHeight( sparkHeight )
-//         , _Turbo( turbo )
-//         , _Mirrored( mirrored )
-//     {
-//     }
+        // : LEDStripEffect( EFFECT_STRIP_SMOOTH_FIRE, "Fire Sound Effect v2" )
+        : _Reversed( reversed )
+        , _Cooling( cooling )
+        , _Sparks( sparks )
+        , _Drift( drift )
+        , _DriftPasses( driftPasses )
+        , _SparkHeight( sparkHeight )
+        , _Turbo( turbo )
+        , _Mirrored( mirrored )
+        , _cLEDs{ ledCount }
+    {
+        _Temperatures = std::vector<float>( _cLEDs );
+    }
 
-//     SmoothFireEffect( const JsonObjectConst &jsonObject )
-//         : LEDStripEffect( jsonObject )
-//         , _Reversed( jsonObject[PTY_REVERSED] )
-//         , _Cooling( jsonObject[PTY_COOLING] )
-//         , _Sparks( jsonObject[PTY_SPARKS] )
-//         , _Drift( jsonObject["dft"] )
-//         , _DriftPasses( jsonObject["dtp"] )
-//         , _SparkHeight( jsonObject[PTY_SPARKHEIGHT] )
-//         , _Turbo( jsonObject["trb"] )
-//         , _Mirrored( jsonObject[PTY_MIRORRED] )
-//     {
-//     }
+    // SmoothFireEffect( const JsonObjectConst &jsonObject )
+    //     : LEDStripEffect( jsonObject )
+    //     , _Reversed( jsonObject[PTY_REVERSED] )
+    //     , _Cooling( jsonObject[PTY_COOLING] )
+    //     , _Sparks( jsonObject[PTY_SPARKS] )
+    //     , _Drift( jsonObject["dft"] )
+    //     , _DriftPasses( jsonObject["dtp"] )
+    //     , _SparkHeight( jsonObject[PTY_SPARKHEIGHT] )
+    //     , _Turbo( jsonObject["trb"] )
+    //     , _Mirrored( jsonObject[PTY_MIRORRED] )
+    // {
+    // }
 
-//     bool SerializeToJSON( JsonObject &jsonObject ) override
-//     {
-//         StaticJsonDocument<LEDStripEffect::_jsonSize> jsonDoc;
+    // bool SerializeToJSON( JsonObject &jsonObject ) override
+    // {
+    //     StaticJsonDocument<LEDStripEffect::_jsonSize> jsonDoc;
 
-//         JsonObject root = jsonDoc.to<JsonObject>();
-//         LEDStripEffect::SerializeToJSON( root );
+    //     JsonObject root = jsonDoc.to<JsonObject>();
+    //     LEDStripEffect::SerializeToJSON( root );
 
-//         jsonDoc[PTY_MIRORRED]    = _Reversed;
-//         jsonDoc[PTY_COOLING]     = _Cooling;
-//         jsonDoc[PTY_SPARKS]      = _Sparks;
-//         jsonDoc["dft"]           = _Drift;
-//         jsonDoc["dtp"]           = _DriftPasses;
-//         jsonDoc[PTY_SPARKHEIGHT] = _SparkHeight;
-//         jsonDoc["trb"]           = _Turbo;
-//         jsonDoc[PTY_MIRORRED]    = _Mirrored;
+    //     jsonDoc[PTY_MIRORRED]    = _Reversed;
+    //     jsonDoc[PTY_COOLING]     = _Cooling;
+    //     jsonDoc[PTY_SPARKS]      = _Sparks;
+    //     jsonDoc["dft"]           = _Drift;
+    //     jsonDoc["dtp"]           = _DriftPasses;
+    //     jsonDoc[PTY_SPARKHEIGHT] = _SparkHeight;
+    //     jsonDoc["trb"]           = _Turbo;
+    //     jsonDoc[PTY_MIRORRED]    = _Mirrored;
 
-//         assert( !jsonDoc.overflowed() );
+    //     assert( !jsonDoc.overflowed() );
 
-//         return jsonObject.set( jsonDoc.as<JsonObjectConst>() );
-//     }
+    //     return jsonObject.set( jsonDoc.as<JsonObjectConst>() );
+    // }
 
-//     bool Init( std::vector<std::shared_ptr<GFXBase>> &gfx ) override
-//     {
-//         LEDStripEffect::Init( gfx );
-//         _Temperatures = (float *)PreferPSRAMAlloc( sizeof( float ) * _cLEDs );
-//         if( !_Temperatures )
-//         {
-//             Serial.println( "ERROR: Could not allocate memory for FireEffect" );
-//             return false;
-//         }
-//         return true;
-//     }
+    // bool Init( std::vector<std::shared_ptr<GFXBase>> &gfx ) override
+    // {
+    //     // LEDStripEffect::Init( gfx );
+    //     _Temperatures = (float *)PreferPSRAMAlloc( sizeof( float ) * _cLEDs );
+    //     if( !_Temperatures )
+    //     {
+    //         Serial.println( "ERROR: Could not allocate memory for FireEffect" );
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
-//     ~SmoothFireEffect()
-//     {
-//         free( _Temperatures );
-//     }
+    ~SmoothFireEffect()
+    {
+        // free( _Temperatures );
+    }
 
-//     void Draw() override
-//     {
-//         float deltaTime = (float)g_Values.AppTime.LastFrameTime();
-//         setAllOnAllChannels( 0, 0, 0 );
+    template <typename T>
+    inline static T random_range( T lower, T upper )
+    {
+        static_assert( std::is_arithmetic<T>::value, "Template argument must be numeric type" );
 
-//         float cooldown = random_range( 0.0f, _Cooling ) * deltaTime;
+        static std::random_device rd;
+        static std::mt19937       gen( rd() );
 
-//         for( int i = 0; i < _cLEDs; i++ )
-//             if( cooldown > _Temperatures[i] )
-//                 _Temperatures[i] = 0;
-//             else
-//                 _Temperatures[i] = _Temperatures[i] - cooldown;
+        if constexpr( std::is_integral<T>::value )
+        {
+            std::uniform_int_distribution<T> distrib( lower, upper );
+            return distrib( gen );
+        }
+        else if constexpr( std::is_floating_point<T>::value )
+        {
+            std::uniform_real_distribution<T> distrib( lower, upper );
+            return distrib( gen );
+        }
+    }
 
-//         // Heat from each cell drifts 'up' and diffuses a little
-//         for( int pass = 0; pass < _DriftPasses; pass++ )
-//         {
-//             for( int k = _cLEDs - 1; k >= 3; k-- )
-//             {
-//                 float amount = 0.2f + g_Analyzer._VURatio; // MIN(0.85f, _Drift * deltaTime);
-//                 float c0     = 1.0f - amount;
-//                 float c1     = amount * 0.33f;
-//                 float c2     = c1;
-//                 float c3     = c1;
+    void Update( float deltaTime )
+    {
+        // float deltaTime = (float)g_Values.AppTime.LastFrameTime();
+        // setAllOnAllChannels( 0, 0, 0 );
 
-//                 _Temperatures[k] =
-//                     _Temperatures[k] * c0 + _Temperatures[k - 1] * c1 + _Temperatures[k - 2] * c2 + _Temperatures[k - 3] * c3;
-//             }
-//         }
+        float cooldown = random_range( 0.0f, _Cooling ) * deltaTime;
 
-//         // Randomly ignite new 'sparks' near the bottom
-//         for( int frame = 0; frame < _Sparks; frame++ )
-//         {
-//             if( random_range( 0.0f, 1.0f ) < 0.70f )
-//             {
-//                 // NB: This randomly rolls over sometimes of course, and that's essential to the effect
-//                 int y            = random_range( 0, _SparkHeight );
-//                 _Temperatures[y] = ( _Temperatures[y] + random_range( 0.6f, 1.0f ) );
+        for( int i = 0; i < _cLEDs; i++ )
+        {
+            if( cooldown > _Temperatures[i] )
+                _Temperatures[i] = 0;
+            else
+                _Temperatures[i] = _Temperatures[i] - cooldown;
+        }
 
-//                 if( !_Turbo )
-//                     while( _Temperatures[y] > 1.0f )
-//                         _Temperatures[y] -= 1.0f;
-//                 else
-//                     _Temperatures[y] = min( _Temperatures[y], 1.0f );
-//             }
-//         }
+        // Heat from each cell drifts 'up' and diffuses a little
+        for( int pass = 0; pass < _DriftPasses; pass++ )
+        {
+            for( int k = _cLEDs - 1; k >= 3; k-- )
+            {
+                float amount = std::min(0.85f, _Drift * deltaTime);//0.2f; //+ g_Analyzer._VURatio; // MIN(0.85f, _Drift * deltaTime);
+                float c0     = 1.0f - amount;
+                float c1     = amount * 0.33f;
+                float c2     = c1;
+                float c3     = c1;
 
-//         for( uint j = 0; j < _cLEDs; j++ )
-//         {
-//             CRGB c = GetBlackBodyHeatColor( _Temperatures[j] );
-//             setPixelWithMirror( j, c );
-//         }
-//     }
+                _Temperatures[k] =
+                    _Temperatures[k] * c0 + _Temperatures[k - 1] * c1 + _Temperatures[k - 2] * c2 + _Temperatures[k - 3] * c3;
+            }
+        }
 
-//     void setPixelWithMirror( int Pixel, CRGB temperature )
-//     {
-//         if( _Reversed || _Mirrored )
-//             setPixelOnAllChannels( Pixel, temperature );
+        // Randomly ignite new 'sparks' near the bottom
+        for( int frame = 0; frame < _Sparks; frame++ )
+        {
+            if( random_range( 0.0f, 1.0f ) < 0.70f )
+            {
+                // NB: This randomly rolls over sometimes of course, and that's essential to the effect
+                int y            = random_range( 0, _SparkHeight );
+                _Temperatures[y] = ( _Temperatures[y] + random_range( 0.6f, 1.0f ) );
 
-//         if( !_Reversed || _Mirrored )
-//             setPixelOnAllChannels( _cLEDs - 1 - Pixel, temperature );
-//     }
-// };
+                // if( !_Turbo )
+                while( _Temperatures[y] > 1.0f )
+                    _Temperatures[y] -= 1.0f;
+                // else
+                // _Temperatures[y] = min( _Temperatures[y], 1.0f );
+            }
+        }
+    }
+
+    virtual CRGB GetBlackBodyHeatColor( float temp ) const
+    {
+        return ColorFromPalette( HeatColors_p, 255 * temp );
+    }
+
+    virtual void Render( LedStripRenderer &renderer )
+    {
+
+        for( uint j = 0; j < _cLEDs; j++ )
+        {
+            CRGB c = GetBlackBodyHeatColor( _Temperatures[j] );
+            renderer.DrawPixel( j, c );
+        }
+        // // Finally, convert heat to a color
+        // for( int i = 0; i < LEDCount; i++ )
+        // {
+        //     auto sum = 0;
+        //     for( int j = 0; j < CellsPerLED; j++ )
+        //         sum += heat[i * CellsPerLED + j];
+        //     auto avg = sum / CellsPerLED;
+
+        //     // #if LANTERN
+        //     // CRGB color = CRGB( avg, avg * .45, avg * .08 );
+        //     // #else
+        //     CRGB color = GetBlackBodyHeatColor( avg / (float)std::numeric_limits<uint8_t>::max() );
+        //     // #endif
+
+        //     // If we're reversed, we work from the end back.  We don't reverse the bonus pixels
+
+        //     // int j = ( !bReversed ) ? i : LEDCount - 1 - i;
+        //     renderer.DrawPixel( i, color );
+        //     // setPixelsOnAllChannels( j, 1, color, false );
+        //     // if( bMirrored )
+        //     //     setPixelsOnAllChannels( !bReversed ? ( 2 * LEDCount - 1 - i ) : LEDCount + i, 1, color, false );
+        // }
+    }
+
+    // void setPixelWithMirror( int Pixel, CRGB temperature )
+    // {
+    //     if( _Reversed || _Mirrored )
+    //         setPixelOnAllChannels( Pixel, temperature );
+
+    //     if( !_Reversed || _Mirrored )
+    //         setPixelOnAllChannels( _cLEDs - 1 - Pixel, temperature );
+    // }
+};
 
 // class BaseFireEffect : public LEDStripEffect
 // {
