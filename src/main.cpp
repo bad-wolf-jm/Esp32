@@ -14,6 +14,7 @@
 #include "Framebuffer/GFXBase.h"
 // #include "Framebuffer/LedMatrix.h"
 // #include "Framebuffer/LedStrip.h"
+#include "Effects/BouncingBall.h"
 #include "Effects/Fire.h"
 #include "Effects/SpectrumAnalyzer.h"
 #include "TaskManager.h"
@@ -82,8 +83,9 @@ void IRAM_ATTR UpdateScreen( void *param )
     }
 }
 
-LaserLineEffect  laser;
-SpectrumAnalyzer analyzer( 16 );
+LaserLineEffect    laser;
+BouncingBallEffect bouncing_balls;
+SpectrumAnalyzer   analyzer( 16 );
 
 void IRAM_ATTR UpdateLeds( void *param )
 {
@@ -99,6 +101,10 @@ void IRAM_ATTR UpdateLeds( void *param )
     float            k = 1.0;
     vector_t<double> peaks( 16 );
 
+    bouncing_balls.Fire();
+    bouncing_balls.Fire();
+    bouncing_balls.Fire();
+
     for( ;; )
     {
         long frameStart = millis();
@@ -106,12 +112,14 @@ void IRAM_ATTR UpdateLeds( void *param )
         led_renderer.Clear( CRGB::Black );
         long ts = millis() - time;
         laser.Update( ts / 1000.0f );
+        bouncing_balls.Update( ts / 1000.0f );
         time = millis();
 
         long timeSinceLastShot = millis() - lastShot;
         if( timeSinceLastShot > 500 )
         {
             laser.Fire();
+            // bouncing_balls.Fire();
             lastShot = millis();
         }
 
@@ -168,7 +176,8 @@ void IRAM_ATTR UpdateLeds( void *param )
 
         led_renderer.Clear();
         // laser.Render( led_renderer );
-        smooth_fire.Render( led_renderer );
+        bouncing_balls.Render( led_renderer );
+        // smooth_fire.Render( led_renderer );
 
         for( int i = 0; i < 16; i++ )
         {
