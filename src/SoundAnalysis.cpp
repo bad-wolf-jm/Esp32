@@ -29,17 +29,17 @@ SoundAnalyzer::SoundAnalyzer( i2s_port_t port, int samplingFrequency, i2s_channe
     switch( _bitsPerSample )
     {
     case I2S_BITS_PER_SAMPLE_8BIT:
-        _bufferSizeInBytes = _bufferSizeInBytes;
+        _bufferSizeInBytes = _bufferSize;
         break;
     case I2S_BITS_PER_SAMPLE_16BIT:
-        _bufferSizeInBytes = _bufferSizeInBytes * 2;
+        _bufferSizeInBytes = _bufferSize * 2;
         break;
     case I2S_BITS_PER_SAMPLE_24BIT:
-        _bufferSizeInBytes = _bufferSizeInBytes * 3;
+        _bufferSizeInBytes = _bufferSize * 3;
         break;
     case I2S_BITS_PER_SAMPLE_32BIT:
     default:
-        _bufferSizeInBytes = _bufferSizeInBytes * 4;
+        _bufferSizeInBytes = _bufferSize * 4;
         break;
     }
 

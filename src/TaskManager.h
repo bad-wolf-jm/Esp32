@@ -1,23 +1,15 @@
 #pragma once
 
-#include <Arduino.h>
-#include <esp_task_wdt.h>
-#include <memory>
+#include "Modules/Definitions.h"
+
+// #include <Arduino.h>
+// #include <memory>
 
 #include "Core/String.h"
+
 // #include "ledstripeffect.h"
 
 // Stack size for the taskmgr's idle threads
-#define DEFAULT_STACK_SIZE 2048 + 512
-
-#define IDLE_STACK_SIZE    2048
-#define DRAWING_STACK_SIZE 4096
-#define AUDIO_STACK_SIZE   4096
-#define JSON_STACK_SIZE    4096
-#define SOCKET_STACK_SIZE  4096
-#define NET_STACK_SIZE     8192
-#define DEBUG_STACK_SIZE   8192 // Needs a lot of stack for output if UpdateClockFromWeb is called from debugger
-#define REMOTE_STACK_SIZE  4096
 
 class IdleTask
 {

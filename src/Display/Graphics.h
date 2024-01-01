@@ -1,4 +1,7 @@
 #pragma once
+
+#include "Modules/Definitions.h"
+
 #include <TFT_eSPI.h>
 #include <array>
 #include <memory>

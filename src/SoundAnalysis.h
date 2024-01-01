@@ -28,6 +28,11 @@ class SoundAnalyzer
     vector_t<double> _real;
     vector_t<double> _imaginary;
 
-  private:
+  public:
     void FillBuffer();
+
+    std::vector<uint8_t> &GetBuffer()
+    {
+        return _sampleBuffer;
+    }
 };
